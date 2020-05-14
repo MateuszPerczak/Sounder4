@@ -63,6 +63,7 @@ class App:
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
+        self.volume: float = 0.0
         # on load
         self.load_images()
         # error_frame
@@ -109,7 +110,6 @@ class App:
         # repeat button
         self.repeat_button: ClassVar = ttk.Button(self.buttons_frame, image=self.repeat_icon, takefocus=False, command=self.toggle_repeat)
         self.repeat_button.place(relx=0.9, rely=0.5, anchor='center')
-        self.buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
         # scale frame
         self.scale_frame: ClassVar = Frame(self.bottom_frame, background='#111')
         # time passed
@@ -120,9 +120,20 @@ class App:
         self.scale_bar.pack(side='left', fill='x', expand=True)
         # song length
         self.song_length: ClassVar = Label(self.scale_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
-        # place widgets
         self.song_length.pack(side='right', ipadx=6)
+        # volume frame
+        self.volume_frame: ClassVar = Frame(self.bottom_frame, background='#111')
+        # volume button
+        self.mute_button: ClassVar = ttk.Button(self.volume_frame, image=self.no_audio_icon, takefocus=False, command=self.toggle_volume)
+        self.mute_button.pack(side='left', anchor='center', padx=5)
+        # volume bar
+        self.volume_bar: ClassVar = ttk.Scale(self.volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
+        self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
+        # place widgets
+
         self.scale_frame.place(relx=0.5, y=68, relwidth=0.9, height=10, anchor='n')
+        self.buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
+        self.volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
         self.bottom_frame.place(relx=0.5, rely=1, relwidth=1, height=90, anchor='s')
         self.song_name.place(relx=0.5, rely=0.72, anchor='center')
         self.cover_art.place(relx=0.5, rely=0.4, anchor='center')
@@ -240,8 +251,12 @@ class App:
             self.warning_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\warning.png').resize((85, 85)))
             self.bug_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\bug.png').resize((35, 35)))
             self.logs_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\logs.png').resize((35, 35)))
-        except Exception as _:
-            pass
+            self.no_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\no_audio.png').resize((25, 25)))
+            self.audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\audio.png').resize((25, 25)))
+            self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\low_audio.png').resize((25, 25)))
+            self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\med_audio.png').resize((25, 25)))
+        except Exception as err_obj:
+            error(err_obj, exc_info=True)
 
     def music_card(self, song) -> None:
         title: str = splitext(basename(song))[0]
@@ -262,7 +277,7 @@ class App:
         music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
 
     def remove_music_cards(self) -> None:
-        for widget in self.playlist_cards.winfo_children():
+        for widget in self.get_all_widgets(self.playlist_cards):
             widget.destroy()
 
     def get_metadata(self) -> None:
@@ -270,10 +285,9 @@ class App:
             self.songs_metadata: dict = {}
             for song in self.songs:
                 if splitext(song)[1] == '.mp3':
-                    tags: ClassVar = MP3(song)
-                    self.songs_metadata[song] = tags
+                    self.songs_metadata[song]: ClassVar = MP3(song)
                 else:
-                    self.songs_metadata[song] = None
+                    self.songs_metadata[song]: None = None
         except Exception as err_obj:
             self.dump_err(err_obj)
 
@@ -300,7 +314,7 @@ class App:
 
     def remove_folder(self, card: ClassVar, path: str) -> None:
         self.settings['folders'].remove(path)
-        for widget in card.winfo_children():
+        for widget in self.get_all_widgets(card):
             widget.destroy()
         card.destroy()
         self.scan_for_songs()
@@ -338,7 +352,7 @@ class App:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50}
         except Exception as err_obj:
             print(err_obj)
 
@@ -350,6 +364,9 @@ class App:
         self.switch_frame()
         # update shuffle and repeat buttons
         self.update_buttons()
+        # volume
+        self.volume_bar.set(self.settings['volume'])
+        self.update_volume()
 
     def save_settings(self) -> None:
         try:
@@ -392,9 +409,13 @@ class App:
             self.settings['height']
         except Exception as _:
             self.settings['height']: int = 450
+        try:
+            self.settings['volume']
+        except Exception as _:
+            self.settings['volume']: float = 0.50
 
-    def get_all_widgets(self) -> list:
-        widget_list = self.main_window.winfo_children()
+    def get_all_widgets(self, widget) -> list:
+        widget_list = widget.winfo_children()
         for widget in widget_list:
             if widget.winfo_children():
                 widget_list.extend(widget.winfo_children())
@@ -410,7 +431,7 @@ class App:
         # exit mixer
         mixer.quit()
         # destroy all widgets
-        for widget in self.get_all_widgets():
+        for widget in self.get_all_widgets(self.main_window):
             widget.destroy()
         # save window size
         self.settings["width"] = self.main_window.winfo_width()
@@ -482,9 +503,7 @@ class App:
                         result += f'{self.songs_metadata[song]["TALB"]} '
                     if 'TCON' in self.songs_metadata[song]:
                         result += f'{self.songs_metadata[song]["TCON"]} '
-                    result += f'{basename(song)} '
-                else:
-                    result += f'{basename(song)} '
+                result += f'{basename(song)} '
                 if bool(findall(word.lower(), result.lower())):
                     self.music_card(song)
                     self.playlist.append(song)
@@ -586,6 +605,28 @@ class App:
         except Exception as err_obj:
             self.dump_err(err_obj)
 
+    def toggle_volume(self):
+        self.settings['volume'] = 0.00
+        self.update_volume()
+        self.volume_bar.set(0)
+        mixer.music.set_volume(self.settings['volume'])
+
+    def change_volume(self, event) -> None:
+        self.settings['volume'] = round(float(event), 2)
+        self.update_volume()
+        mixer.music.set_volume(self.settings['volume'])
+    
+    def update_volume(self) -> None:
+        if self.settings['volume'] == 0.00:
+            self.mute_button.configure(image=self.no_audio_icon)
+        elif 0.01 <= self.settings['volume'] <= 0.30:
+            self.mute_button.configure(image=self.low_audio_icon)
+        elif 0.30 <= self.settings['volume'] <= 0.90:
+            self.mute_button.configure(image=self.med_audio_icon)
+        elif self.settings['volume'] > 0.90:
+            self.mute_button.configure(image=self.audio_icon)
+            
+        
 
     # def card_play(self, song) -> None:
     #     self.song = song
