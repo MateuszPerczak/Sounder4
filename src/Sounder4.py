@@ -1,5 +1,5 @@
 from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, Canvas, Scrollbar, ttk, Entry, Toplevel
-from tkinter.filedialog import askdirectory
+from tkinter.filedialog import askdirectory, asksaveasfile, askopenfile
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from typing import ClassVar
 from os import getcwd, listdir, startfile
@@ -47,6 +47,7 @@ class App:
         self.main_frame: ClassVar = Frame(self.main_window, background='#212121')
         self.select_frame: ClassVar = Frame(self.main_frame, background='#111')
         self.content_frame: ClassVar = Frame(self.main_frame, background='#212121')
+        self.settings_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.playback_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.folder_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.playlist_frame: ClassVar = Frame(self.content_frame, background='#212121')
@@ -54,6 +55,7 @@ class App:
         self.main_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.select_frame.pack(side='top', fill='x', ipady=25)
         self.content_frame.pack(side='left', fill='both', expand=True)
+        self.settings_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.playback_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.playlist_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.folder_frame.place(x=0, y=0, relwidth=1, relheight=1)
@@ -130,7 +132,6 @@ class App:
         self.volume_bar: ClassVar = ttk.Scale(self.volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
         # place widgets
-
         self.scale_frame.place(relx=0.5, y=68, relwidth=0.9, height=10, anchor='n')
         self.buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
         self.volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
@@ -200,10 +201,33 @@ class App:
         # update canvas
         self.playlist_cards.bind('<Configure>', lambda _: self.playlist_canvas.configure(scrollregion=self.playlist_canvas.bbox('all')))
         self.playlist_window: ClassVar = self.playlist_canvas.create_window((0, 0), window=self.playlist_cards, anchor='nw')
-        self.playlist_canvas.bind('<Configure>', lambda _: self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 70))
+        self.playlist_canvas.bind('<Configure>', lambda _: self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71))
         # pack widgets
         self.playlist_scrollbar.pack(side='right', fill='y', pady=(0, 10))
         self.playlist_canvas.pack(side='left', fill='both', expand=True, padx=10, pady=(0, 10))
+        # end
+        # settings frame
+
+        
+
+        self.settings_top_frame: ClassVar = Frame(self.settings_frame, background='#212121')
+
+        # save settings 
+        ttk.Button(self.settings_top_frame, image=self.save_icon, text='SAVE SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.save_settings).place(x=10, rely=0.5, anchor='w', height=35)
+        # export settings
+        ttk.Button(self.settings_top_frame, image=self.save_icon, text='EXPORT SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.export_settings).place(x=167, rely=0.5, anchor='w', height=35)
+        # import settings
+        ttk.Button(self.settings_top_frame, image=self.save_icon, text='IMPORT SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.import_settings).place(x=343, rely=0.5, anchor='w', height=35)
+
+        self.settings_scrollbar: ClassVar = ttk.Scrollbar(self.settings_frame)
+
+        # place widgets
+        self.settings_top_frame.pack(side='top', fill='x', ipady=20, pady=10)
+
+        # pack widgets 
+        self.settings_scrollbar.pack(side='right', fill='y', pady=10)
+
+        # self.settings_frame
         # end
         # main window stuff
         self.main_window.bind('<MouseWheel>', self.on_mouse)
@@ -224,6 +248,7 @@ class App:
             self.folder_canvas.yview_scroll(wheel_acceleration, 'units')
         elif SELECTED == 'playlist':
             self.playlist_canvas.yview_scroll(wheel_acceleration, 'units')
+        del SELECTED, wheel_acceleration
 
     def load_images(self) -> None:
         try:
@@ -255,6 +280,7 @@ class App:
             self.audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\audio.png').resize((25, 25)))
             self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\low_audio.png').resize((25, 25)))
             self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\med_audio.png').resize((25, 25)))
+            self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\save.png').resize((15, 15)))
         except Exception as err_obj:
             error(err_obj, exc_info=True)
 
@@ -275,6 +301,7 @@ class App:
         Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
         ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=None).place(relx=1, rely=1, relheight=1, anchor='se')
         music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
+        del title, artist, length
 
     def remove_music_cards(self) -> None:
         for widget in self.get_all_widgets(self.playlist_cards):
@@ -301,8 +328,8 @@ class App:
         elif SELECTED == 'folder':
             self.folder_frame.lift()
         elif SELECTED == 'settings':
-            pass
-            # self.settings_frame.lift()
+            self.settings_frame.lift()
+        del SELECTED
 
     def folder_card(self, path: str) -> None:
         folder_frame: ClassVar = Frame(self.folder_cards, background='#111')
@@ -327,12 +354,11 @@ class App:
             self.scan_for_songs()
             self.folder_card(new_directory)
             self.refresh_folder()
+        del new_directory
 
     def refresh_folder(self) -> None:
-        self.folder_window: ClassVar = self.folder_canvas.create_window(
-            (0, 0), window=self.folder_cards, anchor='nw')
-        self.main_window.after(1, lambda: self.folder_canvas.itemconfigure(
-            self.folder_window, width=self.folder_canvas.winfo_width(), height=self.folder_canvas.winfo_height()))
+        self.folder_window: ClassVar = self.folder_canvas.create_window((0, 0), window=self.folder_cards, anchor='nw')
+        self.main_window.after(1, lambda: self.folder_canvas.itemconfigure(self.folder_window, width=self.folder_canvas.winfo_width(), height=self.folder_canvas.winfo_height()))
     
     def open_logs(self) -> None:
         if getLogger().isEnabledFor(ERROR):
@@ -413,6 +439,25 @@ class App:
             self.settings['volume']
         except Exception as _:
             self.settings['volume']: float = 0.50
+        del frames
+
+    def export_settings(self) -> None:
+        try:
+            settings_file = asksaveasfile(mode='w', defaultextension=".json", filetype=[('Json Files', '*.json')])
+            if settings_file is not None:
+                dump(self.settings, settings_file)
+                settings_file.close()
+            del settings_file
+        except Exception as err_obj:
+            self.dump_err(err_obj)
+
+    def import_settings(self) -> None:
+        settings_file = askopenfile(mode ='r', filetypes =[('Json Files', '*.json')]) 
+        if settings_file is not None: 
+            self.settings = load(settings_file)
+            self.settings_correction()
+            self.save_settings()
+        del settings_file
 
     def get_all_widgets(self, widget) -> list:
         widget_list = widget.winfo_children()
@@ -451,6 +496,7 @@ class App:
                 for file in listdir(folder):
                     if splitext(file)[1] in supported_extensions:
                         self.songs.append(abspath(join(folder, file)))
+            del supported_extensions
             self.playlist = self.songs
             self.sort_songs()
             self.get_metadata()
@@ -463,7 +509,7 @@ class App:
 
     def refresh_songs(self) -> None:
         self.playlist_canvas.yview_moveto(0)
-        self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 70)
+        self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71)
 
     def add_songs(self) -> None:
         if bool(self.playlist_cards.winfo_children()):
@@ -480,10 +526,13 @@ class App:
     def validate_entry(self, char: str, length: int) -> bool:
         disallowed_chars: list = [37, 40, 41, 42, 43, 47, 61, 63, 91, 92, 94, 124]
         if not bool(char) or len(char) > 1:
+            del disallowed_chars
             return True
         if ord(char) in disallowed_chars:
             self.main_window.bell()
+            del disallowed_chars
             return False
+        del disallowed_chars
         return True
 
     def search_song(self, event=None) -> None:
@@ -517,6 +566,7 @@ class App:
             self.refresh_songs()
         self.update_lenght()
         self.update_num_of_songs()
+        del word, result
 
     def info_card(self, msg: str, frame: ClassVar) -> None:
         music_frame: ClassVar = Frame(frame, background='#111')
@@ -563,6 +613,7 @@ class App:
             self.num_of_songs['text'] = f'{num_of_songs} Song'
         else:
             self.num_of_songs['text'] = f'{num_of_songs} Songs'
+        del num_of_songs
 
     def toggle_shuffle(self) -> None:
         if self.settings['shuffle']:
@@ -597,6 +648,7 @@ class App:
             if self.songs_metadata[song] is not None:
                 play_time += self.songs_metadata[song].info.length
         self.play_time: ClassVar = timedelta(seconds=int(play_time))
+        del play_time
 
     def init_mixer(self) -> None:
         try:
@@ -605,7 +657,7 @@ class App:
         except Exception as err_obj:
             self.dump_err(err_obj)
 
-    def toggle_volume(self):
+    def toggle_volume(self) -> None:
         self.settings['volume'] = 0.00
         self.update_volume()
         self.volume_bar.set(0)
