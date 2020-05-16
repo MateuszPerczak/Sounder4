@@ -65,7 +65,6 @@ class App:
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
-        self.active_card: list = []
         self.volume: float = 0.0
         # on load
         self.load_images()
@@ -236,6 +235,7 @@ class App:
         self.apply_settings()
         # show window
         self.main_window.after(250, lambda: self.main_window.deiconify())
+        self.test_list = []
         self.main_window.mainloop()
 
     def on_mouse(self, event) -> None:
@@ -287,33 +287,28 @@ class App:
         title: str = splitext(basename(song))[0]
         artist: str = 'Unknown'
         length: str = '-:--:--'
-        if self.songs_metadata[song][0] is not None:
-            length = str(timedelta(seconds=int(self.songs_metadata[song][0].info.length)))
-            if 'TIT2' in self.songs_metadata[song][0]:
-                title = f'{self.songs_metadata[song][0]["TIT2"]}'
-            if 'TPE1' in self.songs_metadata[song][0]:
-                artist = f'{self.songs_metadata[song][0]["TPE1"]}'
+        if self.songs_metadata[song] is not None:
+            length = str(timedelta(seconds=int(self.songs_metadata[song].info.length)))
+            if 'TIT2' in self.songs_metadata[song]:
+                title = f'{self.songs_metadata[song]["TIT2"]}'
+            if 'TPE1' in self.songs_metadata[song]:
+                artist = f'{self.songs_metadata[song]["TPE1"]}'
         music_frame: ClassVar = Frame(self.playlist_cards, background='#111')
         Label(music_frame, image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
         Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
         Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
         Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
-        play_button: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=None)
+        play_button: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.test(play_button))
         play_button.place(relx=1, rely=1, relheight=1, anchor='se')
         music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
-        self.songs_metadata[song][1] = play_button
         del title, artist, length
 
-    def update_active_card(self, song) -> None:
-        for widget in self.active_card:
-            if widget not in self.get_all_widgets(self.playlist_cards):
-                self.active_card.remove(widget)
-            else:
-                for widget in self.active_card:
-                    widget.configure(image=self.play_icon)
-                    self.active_card.remove(widget)
-        self.songs_metadata[song][1].configure(image=self.pause_icon)
-        self.active_card.append(self.songs_metadata[song][1])
+    def test(self, button):
+        for x in self.test_list:
+            x.configure(image=self.play_icon)
+            self.test_list.remove(x)
+        self.test_list.append(button)
+        button.configure(image=self.pause_icon)
 
     def remove_music_cards(self) -> None:
         for widget in self.get_all_widgets(self.playlist_cards):
@@ -324,9 +319,9 @@ class App:
             self.songs_metadata: dict = {}
             for song in self.songs:
                 if splitext(song)[1] == '.mp3':
-                    self.songs_metadata[song]: list = [MP3(song), None]
+                    self.songs_metadata[song]: ClassVar = MP3(song)
                 else:
-                    self.songs_metadata[song]: list = [None, None]
+                    self.songs_metadata[song]: None = None
         except Exception as err_obj:
             self.dump_err(err_obj)
 
@@ -509,7 +504,6 @@ class App:
                         self.songs.append(abspath(join(folder, file)))
             del supported_extensions
             self.playlist = self.songs
-            self.active_card = []
             self.sort_songs()
             self.get_metadata()
             self.add_songs()
@@ -517,7 +511,7 @@ class App:
             self.update_num_of_songs()
             self.update_state()
         except Exception as err_obj:
-            error(err_obj, exc_info=True)
+            print(err_obj)
 
     def refresh_songs(self) -> None:
         self.playlist_canvas.yview_moveto(0)
@@ -550,19 +544,18 @@ class App:
         result: str = ''
         if bool(word) and bool(self.songs):
             self.playlist = []
-            self.active_card = []
             self.remove_music_cards()
             self.playlist_canvas.yview_moveto(0)
             for song in self.songs:
-                if self.songs_metadata[song][0] is not None:
-                    if 'TIT2' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TIT2"]} '
-                    if 'TPE1' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TPE1"]} '
-                    if 'TALB' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TALB"]} '
-                    if 'TCON' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TCON"]} '
+                if self.songs_metadata[song] is not None:
+                    if 'TIT2' in self.songs_metadata[song]:
+                        result += f'{self.songs_metadata[song]["TIT2"]} '
+                    if 'TPE1' in self.songs_metadata[song]:
+                        result += f'{self.songs_metadata[song]["TPE1"]} '
+                    if 'TALB' in self.songs_metadata[song]:
+                        result += f'{self.songs_metadata[song]["TALB"]} '
+                    if 'TCON' in self.songs_metadata[song]:
+                        result += f'{self.songs_metadata[song]["TCON"]} '
                 result += f'{basename(song)} '
                 if bool(findall(word.lower(), result.lower())):
                     self.music_card(song)
@@ -656,8 +649,8 @@ class App:
     def get_playtime(self) -> None:
         play_time: float = 0.0
         for song in self.playlist:
-            if self.songs_metadata[song][0] is not None:
-                play_time += self.songs_metadata[song][0].info.length
+            if self.songs_metadata[song] is not None:
+                play_time += self.songs_metadata[song].info.length
         self.play_time: ClassVar = timedelta(seconds=int(play_time))
         del play_time
 
