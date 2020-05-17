@@ -1,0 +1,41 @@
+ERROR:root:'Entry' object has no attribute 'state'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 516, in scan_for_songs
+    self.update_state()
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 603, in update_state
+    self.search_box.state(['!disabled'])
+AttributeError: 'Entry' object has no attribute 'state'
+ERROR:root:bad state "!disabled": must be disabled, normal, or readonly
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 516, in scan_for_songs
+    self.update_state()
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 603, in update_state
+    self.search_box['state'] = '!disabled'
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 1648, in __setitem__
+    self.configure({key: value})
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 1637, in configure
+    return self._configure('configure', cnf, kw)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 1627, in _configure
+    self.tk.call(_flatten((self._w, cmd)) + self._options(cnf))
+_tkinter.TclError: bad state "!disabled": must be disabled, normal, or readonly
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 511, in scan_for_songs
+    self.update_active_card()
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 695, in update_active_card
+    if bool(self.songs) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 511, in scan_for_songs
+    self.update_active_card()
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 695, in update_active_card
+    if bool(self.songs) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 511, in scan_for_songs
+    self.update_active_card()
+  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 695, in update_active_card
+    if bool(self.songs) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+KeyError: ''

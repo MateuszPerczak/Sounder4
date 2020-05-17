@@ -20,13 +20,15 @@ class App:
     def __init__(self):
         # logging error messages
         basicConfig(filename=f"{getcwd()}\\errors.log", level=ERROR)
+        # create window
         self.main_window: ClassVar = Tk()
+        # hide window
         self.main_window.withdraw()
-        self.main_window.geometry('750x750')
         self.main_window.minsize(678, 500)
         self.main_window.iconbitmap('icons\\icon.ico')
         self.main_window.title('SOUNDER')
         self.main_window.configure(background='#212121')
+        # app style
         self.main_theme: ClassVar = ttk.Style()
         self.main_theme.theme_use('clam')
         self.main_theme.configure('TButton', background='#111', relief='flat', font=('corbel', 20), foreground='#fff')
@@ -42,6 +44,7 @@ class App:
         self.main_theme.map('Vertical.TScrollbar', background=[('pressed', '!disabled', '#333'), ('disabled', '#212121'), ('active', '#111'), ('!active', '#111')])
         self.main_theme.map('TScale', background=[('pressed', '!disabled', '#212121'), ('active', '#333')])
         self.main_theme.configure('TScale', troughcolor='#111', background='#212121', relief="flat", gripcount=0, darkcolor="#111", lightcolor="#111", bordercolor="#111")
+        # end
         # frames
         self.error_frame: ClassVar = Frame(self.main_window, background='#212121')
         self.main_frame: ClassVar = Frame(self.main_window, background='#212121')
@@ -67,6 +70,8 @@ class App:
         self.playlist: list = []
         self.active_card: list = []
         self.volume: float = 0.0
+        self.song: str = ""
+        self.paused: bool = False
         # on load
         self.load_images()
         # error_frame
@@ -99,13 +104,13 @@ class App:
         # buttons frame
         self.buttons_frame: ClassVar = Frame(self.bottom_frame, background='#111')
         # play button
-        self.play_button: ClassVar = ttk.Button(self.buttons_frame, image=self.play_icon, takefocus=False, command=None)
+        self.play_button: ClassVar = ttk.Button(self.buttons_frame, image=self.play_icon, takefocus=False, command=self.action_play)
         self.play_button.place(relx=0.5, rely=0.5, anchor='center')
         # next button
-        self.next_button: ClassVar = ttk.Button(self.buttons_frame, image=self.next_icon, takefocus=False)
+        self.next_button: ClassVar = ttk.Button(self.buttons_frame, image=self.next_icon, takefocus=False, command=self.action_next)
         self.next_button.place(relx=0.7, rely=0.5, anchor='center')
         # previous button
-        self.previous_button: ClassVar = ttk.Button(self.buttons_frame, image=self.previous_icon, takefocus=False)
+        self.previous_button: ClassVar = ttk.Button(self.buttons_frame, image=self.previous_icon, takefocus=False, command=self.action_prev)
         self.previous_button.place(relx=0.3, rely=0.5, anchor='center')
         # shuffle button
         self.shuffle_button: ClassVar = ttk.Button(self.buttons_frame, image=self.shuffle_icon, takefocus=False, command=self.toggle_shuffle)
@@ -133,7 +138,7 @@ class App:
         self.volume_bar: ClassVar = ttk.Scale(self.volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
         # place widgets
-        self.scale_frame.place(relx=0.5, y=68, relwidth=0.9, height=10, anchor='n')
+        self.scale_frame.place(relx=0.5, y=68, relwidth=0.9, height=20, anchor='n')
         self.buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
         self.volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
         self.bottom_frame.place(relx=0.5, rely=1, relwidth=1, height=90, anchor='s')
@@ -146,7 +151,7 @@ class App:
         # top buttons
         ttk.Button(self.folder_top_frame, image=self.plus_icon, text='ADD FOLDER', style='folder.TButton', compound='left', takefocus=False, command=self.add_folder).place(x=10, rely=0.5, anchor='w')
         ttk.Button(self.folder_top_frame, image=self.refresh_icon, text='REFRESH', style='folder.TButton', compound='left', takefocus=False, command=self.refresh_folder).place(x=147, rely=0.5, anchor='w')
-        ttk.Button(self.folder_top_frame, image=self.refresh_icon, text='START SCAN', style='folder.TButton', compound='left', takefocus=False, command=self.refresh_songs).place(x=280, rely=0.5, anchor='w')
+        ttk.Button(self.folder_top_frame, image=self.refresh_icon, text='START SCAN', style='folder.TButton', compound='left', takefocus=False, command=self.scan_for_songs).place(x=280, rely=0.5, anchor='w')
         #pack frame
         self.folder_top_frame.pack(side='top', fill='x', ipady=20, pady=10)
         # scrollbar
@@ -176,7 +181,7 @@ class App:
         # search button
         ttk.Button(self.playlist_top_frame, image=self.search_icon, style='folder.TButton', takefocus=False,command=self.search_song).place(x=240, rely=0.5, anchor='w', height=35, width=35)
         # play all button
-        self.playlist_play: ClassVar = ttk.Button(self.playlist_top_frame, image=self.play_playlist, text='PLAY ALL', style='folder.TButton', takefocus=False, compound='left')
+        self.playlist_play: ClassVar = ttk.Button(self.playlist_top_frame, image=self.play_playlist, text='PLAY ALL', style='folder.TButton', takefocus=False, compound='left', command=self.action_all)
         # total play time
         self.playtime_label: ClassVar = Label(self.playlist_top_frame, image=self.clock_icon, text='00:00:00', compound='left', background='#111', foreground='#fff', font=('Consolas', 12))
         # number of songs
@@ -215,7 +220,6 @@ class App:
         # frame for items
         self.settings_cards: ClassVar = Frame(self.settings_canvas, background='#212121')
         # settings content
-
         # end
         # update canvas
         self.settings_cards.bind('<Configure>', lambda _: self.settings_canvas.configure(scrollregion=self.settings_canvas.bbox('all')))
@@ -235,7 +239,7 @@ class App:
         # apply settings
         self.apply_settings()
         # show window
-        self.main_window.after(250, lambda: self.main_window.deiconify())
+        self.main_window.after(100, lambda: self.main_window.deiconify())
         self.main_window.mainloop()
 
     def on_mouse(self, event) -> None:
@@ -298,22 +302,10 @@ class App:
         Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
         Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
         Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
-        play_button: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=None)
-        play_button.place(relx=1, rely=1, relheight=1, anchor='se')
+        self.songs_metadata[song][1]: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
+        self.songs_metadata[song][1].place(relx=1, rely=1, relheight=1, anchor='se')
         music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
-        self.songs_metadata[song][1] = play_button
-        del title, artist, length
-
-    def update_active_card(self, song) -> None:
-        for widget in self.active_card:
-            if widget not in self.get_all_widgets(self.playlist_cards):
-                self.active_card.remove(widget)
-            else:
-                for widget in self.active_card:
-                    widget.configure(image=self.play_icon)
-                    self.active_card.remove(widget)
-        self.songs_metadata[song][1].configure(image=self.pause_icon)
-        self.active_card.append(self.songs_metadata[song][1])
+        del title, artist, length, music_frame
 
     def remove_music_cards(self) -> None:
         for widget in self.get_all_widgets(self.playlist_cards):
@@ -516,6 +508,7 @@ class App:
             self.update_lenght()
             self.update_num_of_songs()
             self.update_state()
+            self.update_active_card()
         except Exception as err_obj:
             error(err_obj, exc_info=True)
 
@@ -528,8 +521,8 @@ class App:
         for song in self.songs:
             try:
                 self.music_card(song)
-            except:
-                pass
+            except Exception as err_obj:
+                error(err_obj, exc_info=True)
         if not bool(self.songs):
             self.info_card(f'WE ARE UNABLE TO FIND ANY SONG', self.playlist_cards)
 
@@ -577,6 +570,7 @@ class App:
             self.refresh_songs()
         self.update_lenght()
         self.update_num_of_songs()
+        self.update_active_card()
         del word, result
 
     def info_card(self, msg: str, frame: ClassVar) -> None:
@@ -635,6 +629,7 @@ class App:
             self.shuffle_button.configure(style='shuffle.TButton')
         self.sort_songs()
         self.add_songs()
+        self.update_active_card()
 
     def toggle_repeat(self) -> None:
         if self.settings['repeat'] == 'none':
@@ -688,77 +683,188 @@ class App:
             self.mute_button.configure(image=self.med_audio_icon)
         elif self.settings['volume'] > 0.90:
             self.mute_button.configure(image=self.audio_icon)
-            
-        
 
-    # def card_play(self, song) -> None:
-    #     self.song = song
-    #     self.play()
+    def update_active_card(self) -> None:
+        for widget in self.active_card:
+            if widget not in self.get_all_widgets(self.playlist_cards):
+                self.active_card.remove(widget)
+            else:
+                for widget in self.active_card:
+                    widget.configure(image=self.play_icon)
+                    self.active_card.remove(widget)
+        if bool(self.song) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+            self.songs_metadata[self.song][1].configure(image=self.pause_icon)
+            self.active_card.append(self.songs_metadata[self.song][1])
+
+    def update_play_button(self) -> None:
+        if mixer.music.get_busy() and self.paused:
+            self.play_button.configure(image=self.play_icon)
+        elif mixer.music.get_busy() and not self.paused:
+           self.play_button.configure(image=self.pause_icon)
+        else:
+            self.play_button.configure(image=self.play_icon)
+
+    def action_play(self) -> None:
+        if bool(self.playlist):
+            if mixer.music.get_busy():
+                if self.paused:
+                    self.unpause_song()
+                else:
+                    self.pause_song()
+            elif bool(self.song):
+                self.play_song()
+            else:
+                self.song = self.playlist[0]
+                self.play_song()
     
-    # def play(self) -> None:
-    #     if mixer.music.get_busy():
-    #         mixer.music.stop()
-    #     mixer.music.load(self.song)
-    #     mixer.music.play()
-    #     self.set_music_info()
+    def action_next(self) -> None:
+        print('!!!')
+    
+    def action_prev(self) -> None:
+        print('@@@')
 
-    # def set_music_info(self) -> None:
-    #     if self.songs_metadata[self.song] is not None:
-    #         if 'APIC:' in self.songs_metadata[self.song]:
-    #             raw_album: bytes = self.songs_metadata[self.song].get("APIC:").data
-    #             self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
-    #             self.cover_art.configure(image=self.new_cover_art_icon)
-    #         else:
-    #             self.cover_art.configure(image=self.cover_art_icon)
-    #         if 'TIT2' in self.songs_metadata[self.song]:
-    #             self.song_name['text'] = f'{self.songs_metadata[self.song]["TIT2"]}'
-    #         else:
-    #             self.song_name['text'] = splitext(basename(self.song))[0]
-    #         if 'TPE1' in self.songs_metadata[self.song]:
-    #             self.song_name['text'] = f'{self.song_name["text"]}\n{self.songs_metadata[self.song]["TPE1"]}'
-    #         if 'TALB' in self.songs_metadata[self.song]:
-    #             self.album_name['text'] = f'{self.songs_metadata[self.song]["TALB"]}'
-    #         else:
-    #             self.album_name['text'] = 'Unknown'
-    #         length: float = self.songs_metadata[self.song].info.length
-    #         self.scale_bar.configure(from_=0, to=length)
-    #         minute, second = divmod((length), 60)
-    #         self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
-    #     else:
-    #         self.song_name['text'] = 'Unknown'
-    #         self.song_length['text'] = '--:--'
-    #         self.scale_bar.configure(from_=0, to=0)
+    def action_card(self, song) -> None:
+        if bool(self.playlist):
+            if song == self.song:
+                if self.paused:
+                    self.unpause_song()
+                else:
+                    self.pause_song()
+            else:
+                self.song = song
+                self.play_song()
+    
+    def action_all(self) -> None:
+        if bool(self.playlist):
+            self.song = self.playlist[0]
+            self.play_song()
+
+    def play_song(self) -> None:
+        if bool(self.playlist):
+            if mixer.music.get_busy():
+                mixer.music.stop()
+            mixer.music.load(self.song)
+            mixer.music.play()
+            self.paused = False
+            self.update_songs_metadata()
+            self.update_active_card()
+            self.update_play_button()
+        if active_count() == 1:
+            Thread(target=self.play_thread, daemon=True).start()
+
+    def pause_song(self) -> None:
+        if mixer.music.get_busy() and bool(self.playlist):
+            mixer.music.pause()
+            self.paused = True
+            self.update_active_card()
+            self.update_play_button()
+
+    def unpause_song(self) -> None:
+        if mixer.music.get_busy() and bool(self.playlist):
+            mixer.music.unpause()
+            self.paused = False
+            self.update_active_card()
+            self.update_play_button()
+
+
+    def play_thread(self) -> None:
+        position: float = 0.0
+        minute: float = 0.0
+        second: float = 0.0
+        while mixer.music.get_busy():
+            position = mixer.music.get_pos() / 1000
+            minute, second = divmod(position, 60)
+            self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
+            self.scale_bar.set(position)
+            sleep(0.08)
+        self.update_active_card()
+        self.update_play_button()
+        del position, minute, second
+        # self.main_window.after(500, self.after_play)
+
+
+    def update_songs_metadata(self) -> None:
+        if self.songs_metadata[self.song][0] is not None:
+            if 'APIC:' in self.songs_metadata[self.song][0]:
+                raw_album: bytes = self.songs_metadata[self.song][0].get("APIC:").data
+                self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
+                self.cover_art.configure(image=self.new_cover_art_icon)
+            else:
+                self.cover_art.configure(image=self.cover_art_icon)
+            if 'TIT2' in self.songs_metadata[self.song][0]:
+                self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
+            else:
+                self.song_name['text'] = splitext(basename(self.song))[0]
+            if 'TPE1' in self.songs_metadata[self.song][0]:
+                self.song_name['text'] = f'{self.song_name["text"]}\n{self.songs_metadata[self.song][0]["TPE1"]}'
+            if 'TALB' in self.songs_metadata[self.song][0]:
+                self.album_name['text'] = f'{self.songs_metadata[self.song][0]["TALB"]}'
+            else:
+                self.album_name['text'] = 'Unknown'
+            length: float = self.songs_metadata[self.song][0].info.length
+            self.scale_bar.configure(from_=0, to=length)
+            minute, second = divmod((length), 60)
+            self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
+            del raw_album, length
+        else:
+            self.song_name['text'] = 'Unknown'
+            self.song_length['text'] = '--:--'
+            self.scale_bar.configure(from_=0, to=0)
+
+
+
+
+# temp functions
+            
+    # def play_song(self) -> None:
+    #     if bool(self.playlist):
+    #         if mixer.music.get_busy():
+    #             mixer.music.stop()
+    #         mixer.music.load(self.song)
+    #         mixer.music.play()
+    #         self.paused = False
+    #         self.update_active_card()
+    #         self.update_play_button()
+    #         self.set_music_info()
     #     if active_count() == 1:
     #         Thread(target=self.song_thread, daemon=True).start()
 
-    # def song_thread(self) -> None:
-    #     while mixer.music.get_busy():
-    #         position = mixer.music.get_pos() / 1000
-    #         minute, second = divmod(position, 60)
-    #         self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
-    #         self.scale_bar.set(position)
-    #         sleep(0.05)
-    #         self.after_play()
-    #     self.after_play()
+    # def card_play(self, song) -> None:
+    #     if song == self.song:
+    #         self.pause_unpause_song()
+    #     else:
+    #         self.song = song
+    #         self.play_song()
 
-    # def init_mixer(self) -> None:
-    #     try:
-    #         mixer.pre_init(frequency=44100, size=16, channels=2, buffer=512, devicename=None)
-    #         mixer.init()
-    #         mixer.music.set_volume(1)
-    #     except Exception as err_obj:
-    #         raise Exception('Unable to initialize audio')
-    
-    # def play_pause(self):
-    #     pass
+    # def pause_unpause_song(self) -> None:
+    #     if self.paused:
+    #         mixer.music.unpause()
+    #         self.paused = False
+    #     else:
+    #         self.paused = True
+    #         mixer.music.pause()
+    #     self.update_active_card()
+    #     self.update_play_button()
+
+    # def play_all(self) -> None:
+    #     if bool(self.playlist):
+    #         self.song = self.playlist[0]
+    #         self.play_song()
 
     # def after_play(self) -> None:
-    #     index: int = self.playlist.index(self.song)
-    #     if not index == len(self.playlist) - 1:
-    #         self.song = self.playlist[index + 1]
-    #         self.play()
-    #     print(index, len(self.playlist), len(self.songs))
+    #     if self.settings['repeat'] == "one" and bool(self.playlist):
+    #         self.play_song()
+    #     elif self.settings['repeat'] == "all":
+    #         if self.playlist.index(self.song) < len(self.playlist) and bool(self.playlist):
+    #             self.song = self.playlist[self.playlist.index(self.song) + 1]
+    #         else:
+    #             self.song = self.playlist[0]
+    #         self.play_song()
+    #     else:
+    #         self.update_active_card()
+    
 
 
 if __name__ == '__main__':
     App()
+
