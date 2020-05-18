@@ -414,6 +414,10 @@ class App:
         # volume
         self.volume_bar.set(self.settings['volume'])
         self.update_volume()
+        # last played
+        if bool(self.playlist):
+            if self.settings['song'] in self.playlist:
+                self.song = self.settings['song']
 
     def save_settings(self) -> None:
         try:
@@ -460,6 +464,10 @@ class App:
             self.settings['volume']
         except Exception as _:
             self.settings['volume']: float = 0.50
+        try:
+            self.settings['song']
+        except Exception as _:
+            self.settings['song']: str = ''
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -482,14 +490,12 @@ class App:
         for widget in self.get_all_widgets(self.main_window):
             widget.destroy()
         # save window size
-        self.settings["width"] = self.main_window.winfo_width()
-        self.settings["height"] = self.main_window.winfo_height()
+        self.settings['width'] = self.main_window.winfo_width()
+        self.settings['height'] = self.main_window.winfo_height()
+        self.settings['song'] = self.song
         self.save_settings()
         # exit program
         self.main_window.destroy()
-
-    def sort_by_letter(self, letter: str) -> str:
-        return splitext(basename(letter))[0].lower()
 
     def scan_for_songs(self) -> None:
         supported_extensions: list = ['.mp3']
@@ -648,6 +654,9 @@ class App:
         else:
             self.songs.sort(key=self.sort_by_letter)
 
+    def sort_by_letter(self, letter: str) -> str:
+        return splitext(basename(letter))[0].split(' ')[0].lower()
+
     def get_playtime(self) -> None:
         play_time: float = 0.0
         for song in self.playlist:
@@ -692,7 +701,7 @@ class App:
                 for widget in self.active_card:
                     widget.configure(image=self.play_icon)
                     self.active_card.remove(widget)
-        if bool(self.song) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+        if  mixer.music.get_busy() and bool(self.song) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
             self.songs_metadata[self.song][1].configure(image=self.pause_icon)
             self.active_card.append(self.songs_metadata[self.song][1])
 
@@ -718,14 +727,26 @@ class App:
                 self.play_song()
     
     def action_next(self) -> None:
-        print('!!!')
+        if bool(self.playlist):
+            if bool(self.song):
+                if (self.playlist.index(self.song) + 1) < len(self.playlist):
+                    self.song = self.playlist[self.playlist.index(self.song) + 1]
+                    self.play_song()
+            else:
+                self.play_song()
     
     def action_prev(self) -> None:
-        print('@@@')
+        if bool(self.playlist):
+            if bool(self.song):
+                if (self.playlist.index(self.song) - 1) >= 0:
+                    self.song = self.playlist[self.playlist.index(self.song) - 1]
+                    self.play_song()
+            else:
+                self.play_song()
 
     def action_card(self, song) -> None:
         if bool(self.playlist):
-            if song == self.song:
+            if song == self.song and mixer.music.get_busy():
                 if self.paused:
                     self.unpause_song()
                 else:
@@ -766,22 +787,18 @@ class App:
             self.update_active_card()
             self.update_play_button()
 
-
     def play_thread(self) -> None:
         position: float = 0.0
         minute: float = 0.0
         second: float = 0.0
-        while mixer.music.get_busy():
+        while mixer.music.get_busy() and bool(self.playlist):
             position = mixer.music.get_pos() / 1000
             minute, second = divmod(position, 60)
             self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
             self.scale_bar.set(position)
             sleep(0.08)
-        self.update_active_card()
-        self.update_play_button()
         del position, minute, second
-        # self.main_window.after(500, self.after_play)
-
+        self.main_window.after(500, self.after_play)
 
     def update_songs_metadata(self) -> None:
         if self.songs_metadata[self.song][0] is not None:
@@ -789,6 +806,7 @@ class App:
                 raw_album: bytes = self.songs_metadata[self.song][0].get("APIC:").data
                 self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
                 self.cover_art.configure(image=self.new_cover_art_icon)
+                del raw_album
             else:
                 self.cover_art.configure(image=self.cover_art_icon)
             if 'TIT2' in self.songs_metadata[self.song][0]:
@@ -805,64 +823,29 @@ class App:
             self.scale_bar.configure(from_=0, to=length)
             minute, second = divmod((length), 60)
             self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
-            del raw_album, length
+            del length, minute, second
         else:
             self.song_name['text'] = 'Unknown'
             self.song_length['text'] = '--:--'
             self.scale_bar.configure(from_=0, to=0)
 
-
-
-
-# temp functions
-            
-    # def play_song(self) -> None:
-    #     if bool(self.playlist):
-    #         if mixer.music.get_busy():
-    #             mixer.music.stop()
-    #         mixer.music.load(self.song)
-    #         mixer.music.play()
-    #         self.paused = False
-    #         self.update_active_card()
-    #         self.update_play_button()
-    #         self.set_music_info()
-    #     if active_count() == 1:
-    #         Thread(target=self.song_thread, daemon=True).start()
-
-    # def card_play(self, song) -> None:
-    #     if song == self.song:
-    #         self.pause_unpause_song()
-    #     else:
-    #         self.song = song
-    #         self.play_song()
-
-    # def pause_unpause_song(self) -> None:
-    #     if self.paused:
-    #         mixer.music.unpause()
-    #         self.paused = False
-    #     else:
-    #         self.paused = True
-    #         mixer.music.pause()
-    #     self.update_active_card()
-    #     self.update_play_button()
-
-    # def play_all(self) -> None:
-    #     if bool(self.playlist):
-    #         self.song = self.playlist[0]
-    #         self.play_song()
-
-    # def after_play(self) -> None:
-    #     if self.settings['repeat'] == "one" and bool(self.playlist):
-    #         self.play_song()
-    #     elif self.settings['repeat'] == "all":
-    #         if self.playlist.index(self.song) < len(self.playlist) and bool(self.playlist):
-    #             self.song = self.playlist[self.playlist.index(self.song) + 1]
-    #         else:
-    #             self.song = self.playlist[0]
-    #         self.play_song()
-    #     else:
-    #         self.update_active_card()
-    
+    def after_play(self) -> None:
+        if bool(self.playlist):
+            if self.settings['repeat'] == 'one':
+                self.play_song()
+            elif self.settings['repeat'] == 'all':
+                if bool(self.song):
+                    if (self.playlist.index(self.song) + 1) < len(self.playlist):
+                        self.song = self.playlist[self.playlist.index(self.song) + 1]
+                        self.play_song()
+                    else:
+                        self.song = self.playlist[0]
+                        self.play_song()
+                else:
+                    self.play_song()
+            elif self.settings['repeat'] == 'none':
+                self.update_active_card()
+                self.update_play_button()
 
 
 if __name__ == '__main__':
