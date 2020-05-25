@@ -24,7 +24,7 @@ class App:
         self.main_window: ClassVar = Tk()
         # hide window
         self.main_window.withdraw()
-        self.main_window.minsize(678, 500)
+        self.main_window.minsize(680, 540)
         self.main_window.iconbitmap('icons\\icon.ico')
         self.main_window.title('SOUNDER')
         self.main_window.configure(background='#212121')
@@ -39,15 +39,14 @@ class App:
         self.main_theme.map('folder.TButton', background=[('pressed', '!disabled', '#111'), ('active', '#151515')])
         self.main_theme.configure('shuffle.TButton', background='#212121', relief='flat', font=('corbel', 12), foreground='#fff')
         self.main_theme.map('shuffle.TButton', background=[('pressed', '!disabled', '#151515'), ('active', '#212121')])
+        self.main_theme.configure('restore.TButton', background='#151515', relief='flat', font=('corbel', 12), foreground='#f04747')
+        self.main_theme.map('restore.TButton', background=[('pressed', '!disabled', '#d84040'), ('active', '#f04747')], foreground=[('pressed', '!disabled', '#151515'), ('active', '#151515')])
         self.main_theme.layout('Vertical.TScrollbar',[('Vertical.Scrollbar.trough', {'children': [('Vertical.Scrollbar.thumb', {'expand': '1', 'sticky': 'nswe'})], 'sticky': 'ns'})])
         self.main_theme.configure('Vertical.TScrollbar', gripcount=0, relief='flat', background='#212121', darkcolor='#212121', lightcolor='#212121', troughcolor='#212121', bordercolor='#212121', arrowcolor='#212121')
         self.main_theme.map('Vertical.TScrollbar', background=[('pressed', '!disabled', '#333'), ('disabled', '#212121'), ('active', '#111'), ('!active', '#111')])
-
         self.main_theme.configure("Horizontal.TProgressbar", foreground='#000', background='#212121', lightcolor='#111', darkcolor='#111', bordercolor='#111', troughcolor='#111')
-
         self.main_theme.map('Horizontal.TScale', background=[('pressed', '!disabled', '#333'), ('active', '#333')])
         # self.main_theme.configure('Horizontal.TScale', troughcolor='#151515', background='#333', relief="flat", gripcount=0, darkcolor="#151515", lightcolor="#151515", bordercolor='#151515')
-
         self.main_theme.configure('Horizontal.TScale', troughcolor='#111', background='#212121', relief="flat", gripcount=0, darkcolor="#111", lightcolor="#111", bordercolor="#111")
         # end
         # frames
@@ -70,6 +69,8 @@ class App:
         # end
         # variables
         self.selected: StringVar = StringVar()
+        self.on_startup: StringVar = StringVar()
+        self.time_precision: StringVar = StringVar()
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
@@ -77,6 +78,7 @@ class App:
         self.volume: float = 0.0
         self.song: str = ""
         self.paused: bool = False
+        self.VERSION: str = "0.5.8"
         # on load
         self.load_images()
         # error_frame
@@ -101,55 +103,63 @@ class App:
                     activebackground='#222', variable=self.selected, value='settings', command=self.switch_frame).place(relx=1, rely=1, width=52, relheight=1, anchor='se')
         # end
         # playback frame
-        self.album_name: ClassVar = Label(self.playback_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background='#212121', foreground='#fff', anchor='center', justify='center')
-        self.cover_art: ClassVar = Label(self.playback_frame, image=self.cover_art_icon, background='#111')
-        self.song_name: ClassVar = Label(self.playback_frame, text='SONG TITLE\nARTIST NAME', font=('Consolas', 15), background='#212121', foreground='#fff', anchor='center', justify='center')
+        top_frame: ClassVar = Frame(self.playback_frame, background='#212121')
+        # album label
+        self.album_name: ClassVar = Label(top_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background='#212121', foreground='#fff', anchor='center', justify='center')  
+        self.album_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)    
+        # cover label
+        self.cover_art: ClassVar = Label(top_frame, image=self.cover_art_icon, background='#212121')
+        self.cover_art.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)   
+        # song label
+        self.song_name: ClassVar = Label(top_frame, text='SONG TITLE', font=('Consolas', 15), background='#212121', foreground='#fff', anchor='center', justify='center')
+        self.song_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
+        # artist label   
+        self.song_artist: ClassVar = Label(top_frame, text='ARTIST NAME', font=('Consolas', 13), background='#212121', foreground='#fff', anchor='center', justify='center')
+        self.song_artist.pack(side='top', anchor='center', fill='x', padx=10, pady=(0, 10), expand=True)   
         # bottom frame
-        self.bottom_frame: ClassVar = Frame(self.playback_frame, background='#111')
+        bottom_frame: ClassVar = Frame(self.playback_frame, background='#111')
         # buttons frame
-        self.buttons_frame: ClassVar = Frame(self.bottom_frame, background='#111')
+        buttons_frame: ClassVar = Frame(bottom_frame, background='#111')
         # play button
-        self.play_button: ClassVar = ttk.Button(self.buttons_frame, image=self.play_icon, takefocus=False, command=self.action_play)
+        self.play_button: ClassVar = ttk.Button(buttons_frame, image=self.play_icon, takefocus=False, command=self.action_play)
         self.play_button.place(relx=0.5, rely=0.5, anchor='center')
         # next button
-        self.next_button: ClassVar = ttk.Button(self.buttons_frame, image=self.next_icon, takefocus=False, command=self.action_next)
+        self.next_button: ClassVar = ttk.Button(buttons_frame, image=self.next_icon, takefocus=False, command=self.action_next)
         self.next_button.place(relx=0.7, rely=0.5, anchor='center')
         # previous button
-        self.previous_button: ClassVar = ttk.Button(self.buttons_frame, image=self.previous_icon, takefocus=False, command=self.action_prev)
+        self.previous_button: ClassVar = ttk.Button(buttons_frame, image=self.previous_icon, takefocus=False, command=self.action_prev)
         self.previous_button.place(relx=0.3, rely=0.5, anchor='center')
         # shuffle button
-        self.shuffle_button: ClassVar = ttk.Button(self.buttons_frame, image=self.shuffle_icon, takefocus=False, command=self.toggle_shuffle)
+        self.shuffle_button: ClassVar = ttk.Button(buttons_frame, image=self.shuffle_icon, takefocus=False, command=self.toggle_shuffle)
         self.shuffle_button.place(relx=0.1, rely=0.5, anchor='center')
         # repeat button
-        self.repeat_button: ClassVar = ttk.Button(self.buttons_frame, image=self.repeat_icon, takefocus=False, command=self.toggle_repeat)
+        self.repeat_button: ClassVar = ttk.Button(buttons_frame, image=self.repeat_icon, takefocus=False, command=self.toggle_repeat)
         self.repeat_button.place(relx=0.9, rely=0.5, anchor='center')
         # scale frame
-        self.progress_frame: ClassVar = Frame(self.bottom_frame, background='#111')
+        progress_frame: ClassVar = Frame(bottom_frame, background='#111')
         # time passed
-        self.time_passed: ClassVar = Label(self.progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
-        self.time_passed.pack(side='left', ipadx=6)
+        self.time_passed: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
+        self.time_passed.pack(side='left', ipadx=8)
         # progress bar
-        self.progress_bar: ClassVar = ttk.Progressbar(self.progress_frame, orient="horizontal", mode="determinate")
+        self.progress_bar: ClassVar = ttk.Progressbar(progress_frame, orient="horizontal", mode="determinate")
         self.progress_bar.pack(side='left', fill='x', expand=True)
         # song length
-        self.song_length: ClassVar = Label(self.progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
-        self.song_length.pack(side='right', ipadx=6)
+        self.song_length: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
+        self.song_length.pack(side='right', ipadx=8)
         # volume frame
-        self.volume_frame: ClassVar = Frame(self.bottom_frame, background='#111')
+        volume_frame: ClassVar = Frame(bottom_frame, background='#111')
         # volume button
-        self.mute_button: ClassVar = ttk.Button(self.volume_frame, image=self.no_audio_icon, takefocus=False, command=self.toggle_volume)
+        self.mute_button: ClassVar = ttk.Button(volume_frame, image=self.no_audio_icon, takefocus=False, command=self.toggle_volume)
         self.mute_button.pack(side='left', anchor='center', padx=5)
         # volume bar
-        self.volume_bar: ClassVar = ttk.Scale(self.volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
+        self.volume_bar: ClassVar = ttk.Scale(volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
-        # place widgets
-        self.progress_frame.place(relx=0.5, y=68, relwidth=0.9, height=20, anchor='n')
-        self.buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
-        self.volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
-        self.bottom_frame.place(relx=0.5, rely=1, relwidth=1, height=90, anchor='s')
-        self.song_name.place(relx=0.5, rely=0.72, anchor='center')
-        self.cover_art.place(relx=0.5, rely=0.4, anchor='center')
-        self.album_name.place(relx=0.5, rely=0.08, anchor='center')
+        # place frames
+        top_frame.pack(side='top', anchor='center', fill='both', expand=True)
+        bottom_frame.pack(side='bottom', anchor='center', fill='x', ipady=45)
+        buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
+        volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
+        progress_frame.place(relx=0.5, y=68, relwidth=1, height=20, anchor='n')
         # end
         # folder frame
         self.folder_top_frame: ClassVar = Frame(self.folder_frame, background='#212121')
@@ -171,7 +181,7 @@ class App:
         # update canvas
         self.folder_cards.bind('<Configure>', lambda _: self.folder_canvas.configure(scrollregion=self.folder_canvas.bbox('all')))
         self.folder_window: ClassVar = self.folder_canvas.create_window((0, 0), window=self.folder_cards, anchor='nw')
-        self.folder_canvas.bind('<Configure>', lambda _: self.folder_canvas.itemconfigure(self.folder_window, width=self.folder_canvas.winfo_width(), height=len(self.settings['folders']) * 70))
+        self.folder_canvas.bind('<Configure>', lambda _: self.folder_canvas.itemconfigure(self.folder_window, width=self.folder_canvas.winfo_width(), height=len(self.settings['folders']) * 71))
         # pack canvas
         self.folder_scrollbar.pack(side='right', fill='y', pady=(0, 10))
         self.folder_canvas.pack(side='left', fill='both',expand=True, padx=10, pady=(0, 10))
@@ -184,7 +194,7 @@ class App:
         self.search_box: ClassVar = Entry(self.playlist_top_frame, validate="key", validatecommand=validator, exportselection=0, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#111', foreground='#fff', font=('Consolas', 16))
         self.search_box.place(x=10, rely=0.5, height=35, width=230, anchor='w')
         # search button
-        ttk.Button(self.playlist_top_frame, image=self.search_icon, style='folder.TButton', takefocus=False,command=self.search_song).place(x=240, rely=0.5, anchor='w', height=35, width=35)
+        ttk.Button(self.playlist_top_frame, image=self.search_icon, style='folder.TButton', takefocus=False, command=self.search_song).place(x=240, rely=0.5, anchor='w', height=35, width=35)
         # play all button
         self.playlist_play: ClassVar = ttk.Button(self.playlist_top_frame, image=self.play_playlist, text='PLAY ALL', style='folder.TButton', takefocus=False, compound='left', command=self.action_all)
         # total play time
@@ -225,11 +235,66 @@ class App:
         # frame for items
         self.settings_cards: ClassVar = Frame(self.settings_canvas, background='#212121')
         # settings content
+        # transition
+        transition_frame = Frame(self.settings_cards, background='#111')
+        Label(transition_frame, image=self.transition_icon, text=' TRANSITION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.transition_label: ClassVar = Label(transition_frame, text=f'VALUE: {self.settings["transition"]}s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.transition_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
+        Label(transition_frame, text='0s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        self.transition_scale: ClassVar = ttk.Scale(transition_frame, orient='horizontal', from_=0, to=18, length=5, command=self.change_transition)
+        self.transition_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
+        Label(transition_frame, text='18s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
+        transition_frame.pack(side='top', fill='x', pady=(0, 10))
+        # time precision
+        time_precision_frame = Frame(self.settings_cards, background='#111')
+        Label(time_precision_frame, image=self.time_icon, text=' TIME PRECISION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.precision_label: ClassVar = Label(time_precision_frame, text='CURRENT PRECISION: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.precision_label.pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(time_precision_frame, relief='flat', text='PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.time_precision, value='PRECISE', command=self.change_precision).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(time_precision_frame, relief='flat', text='MORE PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.time_precision, value='MORE PRECISE', command=self.change_precision).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        time_precision_frame.pack(side='top', fill='x', pady=(0, 10))
+        # after init
+        play_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(play_frame, image=self.power_icon, text=' STARTUP', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.startup_label: ClassVar = Label(play_frame, text='ON APP STARTUP: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.startup_label.pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(play_frame, relief='flat', text='DO NOTHING', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='DO NOTHING', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(play_frame, relief='flat', text='PLAY LATEST SONG', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='PLAY LATEST SONG', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(play_frame, relief='flat', text='PLAY FIRST SONG', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='PLAY FIRST SONG', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        play_frame.pack(side='top', fill='x', pady=(0, 10))
+        # scroll acceleration
+        scroll_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(scroll_frame, image=self.slider_icon, text=' SCROLL ACCELERATION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.acceleration_label: ClassVar = Label(scroll_frame, text=f'VALUE: {self.settings["wheel_acceleration"]}X', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.acceleration_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
+        Label(scroll_frame, text='SLOW', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        self.acceleration_scale: ClassVar = ttk.Scale(scroll_frame, orient='horizontal', from_=1, to=5, length=5, command=self.change_acceleration)
+        self.acceleration_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
+        Label(scroll_frame, text='FAST', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
+        scroll_frame.pack(side='top', fill='x', pady=(0, 10))
+        # about
+        about_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'VERSION: {self.VERSION}', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'ICONS: icons8.com', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'AUTHOR: Mateusz Perczak (Łosiek)', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'LICENCE: MIT', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=(5, 10), padx=10)
+        about_frame.pack(side='top', fill='x', pady=(0, 10))
         # end
+        # default settings
+        default_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(default_frame, image=self.restore_icon, text=' DEFAULT SETTINGS', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        ttk.Button(default_frame, text='RESTORE DEFAULT SETTINGS', style='restore.TButton', takefocus=False, command=self.default_settings).pack(side='top', fill='x', pady=(5, 10), padx=10)
+        default_frame.pack(side='top', fill='x', pady=(0, 10))
         # update canvas
         self.settings_cards.bind('<Configure>', lambda _: self.settings_canvas.configure(scrollregion=self.settings_canvas.bbox('all')))
         self.settings_window: ClassVar = self.settings_canvas.create_window((0, 0), window=self.settings_cards, anchor='nw')
-        self.settings_canvas.bind('<Configure>', lambda _: self.settings_canvas.itemconfigure(self.settings_window, width=self.settings_canvas.winfo_width(), height=800))
+        self.settings_canvas.bind('<Configure>', lambda _: self.settings_canvas.itemconfigure(self.settings_window, width=self.settings_canvas.winfo_width(), height=self.settings_cards.winfo_height()))
         # place widgets
         self.settings_top_frame.pack(side='top', fill='x', ipady=20, pady=10)
         self.settings_scrollbar.pack(side='right', fill='y', pady=(0, 10))
@@ -244,7 +309,8 @@ class App:
         # apply settings
         self.apply_settings()
         # show window
-        self.main_window.after(100, lambda: self.main_window.deiconify())
+        self.main_window.after(50, lambda: self.main_window.deiconify())
+        # self.main_window.after(3000, lambda: print(self.settings_cards.winfo_height()))
         self.main_window.mainloop()
 
     def on_mouse(self, event) -> None:
@@ -289,6 +355,12 @@ class App:
             self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\low_audio.png').resize((25, 25)))
             self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\med_audio.png').resize((25, 25)))
             self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\save.png').resize((15, 15)))
+            self.logo_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\logo.png').resize((40, 40)))
+            self.slider_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\slider.png').resize((40, 40)))
+            self.restore_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\restore.png').resize((40, 40)))
+            self.power_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\power.png').resize((40, 40)))
+            self.time_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\time.png').resize((40, 40)))
+            self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\transition.png').resize((40, 40)))
         except Exception as err_obj:
             error(err_obj, exc_info=True)
 
@@ -404,25 +476,44 @@ class App:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING'}
         except Exception as err_obj:
             print(err_obj)
 
     def apply_settings(self) -> None:
-        # set window size
-        self.main_window.geometry(f'{self.settings["width"]}x{self.settings["height"]}+{int(self.main_window.winfo_x() + ((self.main_window.winfo_screenwidth() - self.settings["width"]) / 2))}+{int(self.main_window.winfo_y() +((self.main_window.winfo_screenheight() - self.settings["height"]) / 2))}')
-        # switch to frame
-        self.selected.set(self.settings['last_card'])
-        self.switch_frame()
-        # update shuffle and repeat buttons
-        self.update_buttons()
-        # volume
-        self.volume_bar.set(self.settings['volume'])
-        self.update_volume()
-        # last played
-        if bool(self.playlist):
-            if self.settings['song'] in self.playlist:
-                self.song = self.settings['song']
+        try:
+            # set window size
+            self.main_window.geometry(f'{self.settings["width"]}x{self.settings["height"]}+{int(self.main_window.winfo_x() + ((self.main_window.winfo_screenwidth() - self.settings["width"]) / 2))}+{int(self.main_window.winfo_y() +((self.main_window.winfo_screenheight() - self.settings["height"]) / 2))}')
+            # switch to frame
+            self.selected.set(self.settings['last_card'])
+            self.switch_frame()
+            # update shuffle and repeat buttons
+            self.update_buttons()
+            # volume
+            self.volume_bar.set(self.settings['volume'])
+            self.update_volume()
+            # acceleration
+            self.acceleration_scale.set(self.settings['wheel_acceleration'])
+            # time resolution
+            self.time_precision.set(self.settings['time_precision'])
+            self.change_precision()
+            # transition
+            self.transition_scale.set(self.settings['transition'])
+            # on startup
+            self.on_startup.set(self.settings['on_startup'])
+            self.change_startup()
+            if self.settings['on_startup'] in ['DO NOTHING', 'PLAY LATEST SONG']:
+                if bool(self.playlist):
+                    if self.settings['song'] in self.playlist:
+                        self.song = self.settings['song']  
+                        if self.settings['on_startup'] == 'PLAY LATEST SONG':
+                            self.action_play()
+            elif self.settings['on_startup'] == 'PLAY FIRST SONG':
+                if bool(self.playlist):
+                    self.song = self.playlist[0]
+                    self.action_play()
+        except Exception as err_obj:
+            self.dump_err(err_obj)
 
     def save_settings(self) -> None:
         try:
@@ -473,6 +564,18 @@ class App:
             self.settings['song']
         except Exception as _:
             self.settings['song']: str = ''
+        try:
+            self.settings['on_startup']
+        except Exception as _:
+            self.settings['on_startup']: str = 'DO NOTHING'
+        try:
+            self.settings['time_precision']
+        except Exception as _:
+            self.settings['time_precision']: str = 'PRECISE'
+        try:
+            self.settings['transition']
+        except Exception as _:
+            self.settings['transition']: int = 0
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -520,12 +623,13 @@ class App:
             self.update_num_of_songs()
             self.update_state()
             self.update_active_card()
+            self.move_to_view()
         except Exception as err_obj:
             error(err_obj, exc_info=True)
 
     def refresh_songs(self) -> None:
-        self.playlist_canvas.yview_moveto(0)
         self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71)
+        self.move_to_view()
 
     def add_songs(self) -> None:
         self.remove_music_cards()
@@ -644,6 +748,7 @@ class App:
         self.sort_songs()
         self.add_songs()
         self.update_active_card()
+        self.move_to_view()
 
     def toggle_repeat(self) -> None:
         if self.settings['repeat'] == 'none':
@@ -657,7 +762,7 @@ class App:
             self.repeat_button.configure(style='TButton', image=self.repeat_icon)
 
     def sort_songs(self) -> None:
-        if self.settings['shuffle']:
+        if self.settings['shuffle'] and len(self.playlist) > 1:
             shuffle(self.songs)
         else:
             self.songs.sort(key=self.sort_by_letter)
@@ -675,7 +780,7 @@ class App:
 
     def init_mixer(self) -> None:
         try:
-            mixer.pre_init(frequency=44100, size=0, channels=2, buffer=512)
+            mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=1024)
             mixer.init()
         except Exception as err_obj:
             self.dump_err(err_obj)
@@ -710,7 +815,7 @@ class App:
                     for widget in self.active_card:
                         widget.configure(image=self.play_icon)
                         self.active_card.remove(widget)
-            if  mixer.music.get_busy() and bool(self.song) and bool(self.playlist) and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+            if  mixer.music.get_busy() and bool(self.song) and bool(self.playlist) and self.song in self.songs_metadata and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
                 self.songs_metadata[self.song][1].configure(image=self.pause_icon)
                 self.active_card.append(self.songs_metadata[self.song][1])
         except Exception as err_obj:
@@ -725,7 +830,7 @@ class App:
             self.play_button.configure(image=self.play_icon)
 
     def action_play(self) -> None:
-        if bool(self.playlist):
+        if bool(self.playlist) or bool(self.songs):
             if mixer.music.get_busy():
                 if self.paused:
                     self.unpause_song()
@@ -736,24 +841,31 @@ class App:
             else:
                 self.song = self.playlist[0]
                 self.play_song()
-    
+
     def action_next(self) -> None:
-        if bool(self.playlist):
-            if bool(self.song):
+        if bool(self.song):
+            if bool(self.playlist) and self.song in self.playlist:
                 if (self.playlist.index(self.song) + 1) < len(self.playlist):
                     self.song = self.playlist[self.playlist.index(self.song) + 1]
                     self.play_song()
-            else:
-                self.play_song()
+            elif bool(self.songs) and self.song in self.songs:
+                if (self.songs.index(self.song) + 1) < len(self.songs):
+                    self.song = self.songs[self.songs.index(self.song) + 1]
+        else:
+            self.play_song()
     
     def action_prev(self) -> None:
-        if bool(self.playlist):
-            if bool(self.song):
+        if bool(self.song):
+            if bool(self.playlist) and self.song in self.playlist:
                 if (self.playlist.index(self.song) - 1) >= 0:
                     self.song = self.playlist[self.playlist.index(self.song) - 1]
                     self.play_song()
-            else:
-                self.play_song()
+            elif bool(self.songs) and self.song in self.songs:
+                if (self.songs.index(self.song) - 1) >= 0:
+                    self.song = self.songs[self.songs.index(self.song) - 1]
+                    self.play_song()
+        else:
+            self.play_song()
 
     def action_card(self, song) -> None:
         if bool(self.playlist):
@@ -771,8 +883,13 @@ class App:
             self.song = self.playlist[0]
             self.play_song()
 
+    def move_to_view(self) -> None:
+        if bool(self.playlist) and bool(self.song) and self.song in self.playlist:
+            self.playlist_canvas.yview_moveto(float((self.playlist.index(self.song) * 71) / self.playlist_cards.winfo_height()))
+
     def play_song(self) -> None:
-        if bool(self.playlist):
+        if bool(self.song) and bool(self.playlist) or bool(self.songs):
+            SELECTED: str = self.selected.get()
             mixer.music.load(self.song)
             mixer.music.play()
             self.paused = False
@@ -781,16 +898,19 @@ class App:
             self.update_play_button()
             if active_count() == 1:
                 Thread(target=self.play_thread, daemon=True).start()
+            if SELECTED != 'playlist':
+                self.move_to_view()
+            del SELECTED
 
     def pause_song(self) -> None:
-        if mixer.music.get_busy() and bool(self.playlist):
+        if mixer.music.get_busy() and bool(self.songs):
             mixer.music.pause()
             self.paused = True
             self.update_active_card()
             self.update_play_button()
 
     def unpause_song(self) -> None:
-        if mixer.music.get_busy() and bool(self.playlist):
+        if mixer.music.get_busy() and bool(self.songs):
             mixer.music.unpause()
             self.paused = False
             self.update_active_card()
@@ -803,46 +923,62 @@ class App:
             second: float = 0.0
             while mixer.music.get_busy() and bool(self.song):
                 position = mixer.music.get_pos() / 1000
-                minute, second = divmod(position, 60)
-                self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
                 self.progress_bar['value'] = position
-                sleep(0.1)
+                minute, second = divmod(position, 60)
+                if self.settings['time_precision'] == 'PRECISE':
+                    self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
+                    sleep(0.1)
+                else:
+                    self.time_passed['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}:{str(second)[3:7].zfill(4)}'
+                    sleep(0.05)
             del position, minute, second
-            self.main_window.after(500, self.after_play)
+            if self.settings['transition'] == 0:
+                self.main_window.after(250, self.after_play)
+            else:
+                self.main_window.after((self.settings['transition'] * 1000), self.after_wait)
         except Exception as err_obj:
             self.dump_err(err_obj)
 
     def update_songs_metadata(self) -> None:
-        if self.songs_metadata[self.song][0] is not None:
-            if 'APIC:' in self.songs_metadata[self.song][0]:
-                raw_album: bytes = self.songs_metadata[self.song][0].get("APIC:").data
-                self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
-                self.cover_art.configure(image=self.new_cover_art_icon)
-                del raw_album
+        if bool(self.song):
+            if self.songs_metadata[self.song][0] is not None:
+                if 'APIC:' in self.songs_metadata[self.song][0]:
+                    raw_album: bytes = self.songs_metadata[self.song][0].get("APIC:").data
+                    self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
+                    self.cover_art.configure(image=self.new_cover_art_icon)
+                    del raw_album
+                else:
+                    self.cover_art.configure(image=self.cover_art_icon)
+                if 'TIT2' in self.songs_metadata[self.song][0]:
+                    self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
+                else:
+                    self.song_name['text'] = splitext(basename(self.song))[0]
+                if 'TPE1' in self.songs_metadata[self.song][0]:
+                    self.song_artist['text'] = f'{self.songs_metadata[self.song][0]["TPE1"]}'
+                else:
+                    self.song_artist['text'] = 'Unknown'
+                if 'TALB' in self.songs_metadata[self.song][0]:
+                    self.album_name['text'] = f'{self.songs_metadata[self.song][0]["TALB"]}'
+                else:
+                    self.album_name['text'] = 'Unknown'
+                length: float = self.songs_metadata[self.song][0].info.length
+                self.progress_bar['maximum'] = length
+                minute, second = divmod((length), 60)
+                if self.settings['time_precision'] == 'PRECISE':
+                    self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
+                else:
+                    self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}:{str(second)[3:7].zfill(4)}'
+                del length, minute, second
             else:
-                self.cover_art.configure(image=self.cover_art_icon)
-            if 'TIT2' in self.songs_metadata[self.song][0]:
-                self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
-            else:
-                self.song_name['text'] = splitext(basename(self.song))[0]
-            if 'TPE1' in self.songs_metadata[self.song][0]:
-                self.song_name['text'] = f'{self.song_name["text"]}\n\n{self.songs_metadata[self.song][0]["TPE1"]}'
-            if 'TALB' in self.songs_metadata[self.song][0]:
-                self.album_name['text'] = f'{self.songs_metadata[self.song][0]["TALB"]}'
-            else:
-                self.album_name['text'] = 'Unknown'
-            length: float = self.songs_metadata[self.song][0].info.length
-            self.progress_bar['maximum'] = length
-            minute, second = divmod((length), 60)
-            self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
-            del length, minute, second
-        else:
-            self.song_name['text'] = 'Unknown'
-            self.song_length['text'] = '--:--'
-            self.progress_bar['maximum'] = 99999999
-            self.progress_bar['value'] = 0
+                self.song_name['text'] = 'Unknown'
+                self.song_artist['text'] = 'Unknown'
+                self.song_length['text'] = '--:--'
+                self.progress_bar['maximum'] = 99999999
+                self.progress_bar['value'] = 0
 
-            # self.scale_bar.configure(from_=0, to=0)
+    def after_wait(self) -> None:
+        if not mixer.music.get_busy():
+            self.main_window.after(250, self.after_play())
 
     def after_play(self) -> None:
         try:
@@ -875,6 +1011,35 @@ class App:
         except Exception as err_obj:
             self.dump_err(err_obj)
 
+    def change_acceleration(self, event) -> None:
+        self.settings['wheel_acceleration'] = round(float(event), 2)
+        self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
+
+    def default_settings(self) -> None:
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': ''}
+        self.close()
+    
+    def change_startup(self) -> None:
+        value: str = self.on_startup.get()
+        self.settings['on_startup'] = value
+        self.startup_label['text'] = f'ON APP STARTUP: {value}'
+        del value
+
+    def change_precision(self) -> None:
+        value: str = self.time_precision.get()
+        self.settings['time_precision'] = value
+        if value == 'PRECISE':
+            self.precision_label['text'] = f'CURRENT PRECISION: {value} (0:00)'
+        else:
+            self.precision_label['text'] = f'CURRENT PRECISION: {value} (0:00:0000)'
+        if bool(self.song):
+            self.update_songs_metadata()
+        del value
+
+    def change_transition(self, event) -> None:
+        self.settings['transition'] = int(float(event))
+        self.transition_label['text'] = f'VALUE: {self.settings["transition"]}s'
+        
 if __name__ == '__main__':
     App()
 

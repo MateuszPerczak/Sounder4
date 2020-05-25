@@ -1,1 +1,1 @@
-{"folders": ["C:/Users/Mateusz/Music"], "last_card": "playlist", "shuffle": true, "repeat": "all", "wheel_acceleration": 2.0, "width": 940, "height": 541, "volume": 1.0, "song": "C:\\Users\\Mateusz\\Music\\Something Just Like This.mp3"}
+{"folders": ["C:/Users/Mateusz/Music"], "last_card": "playback", "shuffle": true, "repeat": "all", "wheel_acceleration": 2.0, "width": 881, "height": 540, "volume": 1.0, "song": "C:\\Users\\Mateusz\\Music\\King.mp3", "on_startup": "PLAY LATEST SONG", "time_resolution": "MORE PRECISE", "time_precision": "MORE PRECISE", "transition": 0}
