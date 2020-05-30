@@ -1,5 +1,0 @@
-ERROR:root:'str' object has no attribute 'configure'
-Traceback (most recent call last):
-  File "c:/Users/Mateusz/PycharmProjects/Python/Sounder4/Sounder4.py", line 819, in update_active_card
-    self.songs_metadata[self.song][1].winfo_parent().configure(background='#333')
-AttributeError: 'str' object has no attribute 'configure'
