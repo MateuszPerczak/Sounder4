@@ -1,0 +1,31 @@
+
+ERROR:root:'version'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 632, in settings_correction
+    del self.settings['version']
+KeyError: 'version'
+ERROR:root:Couldn't open 'C:\Users\Mateusz\Music\Monster.mp3'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 951, in play_song
+    mixer.music.load(self.song)
+pygame.error: Couldn't open 'C:\Users\Mateusz\Music\Monster.mp3'
+ERROR:root:Couldn't open ''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 951, in play_song
+    mixer.music.load(self.song)
+pygame.error: Couldn't open ''
+ERROR:root:name 'CIPSKO' is not defined
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
+    CIPSKO
+NameError: name 'CIPSKO' is not defined
+ERROR:root:name 'CIPSKO' is not defined
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
+    CIPSKO
+NameError: name 'CIPSKO' is not defined
+ERROR:root:name 'CIPSKO' is not defined
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
+    CIPSKO
+NameError: name 'CIPSKO' is not defined

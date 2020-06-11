@@ -1,6 +1,7 @@
-from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, Canvas, Scrollbar, ttk, Entry, Toplevel
+from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text
 from tkinter.filedialog import askdirectory
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
+from traceback import format_exc
 from typing import ClassVar
 from os import getcwd, listdir, startfile
 from os.path import basename, isfile, isdir, splitext, abspath, join
@@ -15,6 +16,7 @@ from pygame import mixer
 from threading import Thread, active_count
 from time import sleep
 from webbrowser import open as open_browser
+from requests import get
 
 class Sounder:
     def __init__(self):
@@ -58,6 +60,7 @@ class Sounder:
         self.playback_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.folder_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.playlist_frame: ClassVar = Frame(self.content_frame, background='#212121')
+        self.debugger_frame: ClassVar = Frame(self.content_frame, background='#212121')
         self.error_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.main_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.select_frame.pack(side='top', fill='x', ipady=25)
@@ -66,11 +69,13 @@ class Sounder:
         self.playback_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.playlist_frame.place(x=0, y=0, relwidth=1, relheight=1)
         self.folder_frame.place(x=0, y=0, relwidth=1, relheight=1)
+        self.debugger_frame.place(x=0, y=0, relwidth=1, relheight=1)
         # end
         # variables
         self.selected: StringVar = StringVar()
         self.on_startup: StringVar = StringVar()
         self.time_precision: StringVar = StringVar()
+        self.update: BooleanVar = BooleanVar()
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
@@ -78,7 +83,8 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ""
         self.paused: bool = False
-        self.VERSION: str = "0.6.0"
+        self.VERSION: str = "0.7.0"
+        self.dumps: list = []
         # on load
         self.load_images()
         # error_frame
@@ -86,7 +92,7 @@ class Sounder:
         self.error_reason: ClassVar = Label(self.error_frame, text='', font=('corbel', 20), background='#212121', foreground='#e74c3c', anchor='center', justify='center')
         ttk.Button(self.error_frame, image=self.bug_icon, text=' Report a bug', compound='left', style='error.TButton', takefocus=False, command=lambda: open_browser('https://github.com/losek1/Sounder4/issues', new=0, autoraise=True)).place(relx=0.7, rely=0.96, anchor='s')
         ttk.Button(self.error_frame, image=self.logs_icon, text=' Open logs', compound='left', style='error.TButton', takefocus=False, command=self.open_logs).place(relx=0.3, rely=0.96, anchor='s')
-        self.error_reason.place(relx=0.6, rely=0.64, anchor='s')
+        self.error_reason.place(relx=0.5, rely=0.64, anchor='s')
         # end
         # load settings
         self.load_settings()
@@ -106,7 +112,10 @@ class Sounder:
         top_frame: ClassVar = Frame(self.playback_frame, background='#212121')
         # album label
         self.album_name: ClassVar = Label(top_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background='#212121', foreground='#fff', anchor='center', justify='center')  
-        self.album_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)    
+        self.album_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
+        # song options
+        self.song_option: ClassVar = ttk.Button(top_frame, text='...')
+        # self.song_option.pack(side='left', anchor='n', fill='x', padx=10, pady=(10, 0), expand=True)
         # cover label
         self.cover_art: ClassVar = Label(top_frame, image=self.cover_art_icon, background='#212121')
         self.cover_art.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)   
@@ -114,7 +123,7 @@ class Sounder:
         self.song_name: ClassVar = Label(top_frame, text='SONG TITLE', font=('Consolas', 15), background='#212121', foreground='#fff', anchor='center', justify='center')
         self.song_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
         # artist label   
-        self.song_artist: ClassVar = Label(top_frame, text='ARTIST NAME', font=('Consolas', 13), background='#212121', foreground='#fff', anchor='center', justify='center')
+        self.song_artist: ClassVar = Label(top_frame, text='ARTIST NAME', font=('Consolas', 12), background='#212121', foreground='#fff', anchor='center', justify='center')
         self.song_artist.pack(side='top', anchor='center', fill='x', padx=10, pady=(0, 10), expand=True)   
         # bottom frame
         bottom_frame: ClassVar = Frame(self.playback_frame, background='#111')
@@ -227,6 +236,9 @@ class Sounder:
         self.settings_top_frame: ClassVar = Frame(self.settings_frame, background='#212121')
         # save settings 
         ttk.Button(self.settings_top_frame, image=self.save_icon, text='SAVE SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.save_settings).place(x=10, rely=0.5, anchor='w', height=35)
+        # check for update
+        if bool(self.settings['update']) and isfile('updater.exe'):
+            self.main_window.after(2000, self.check_update)
         # settings scrollbar
         self.settings_scrollbar: ClassVar = ttk.Scrollbar(self.settings_frame)
         # settings canvas
@@ -277,6 +289,16 @@ class Sounder:
         self.acceleration_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
         Label(scroll_frame, text='FAST', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
         scroll_frame.pack(side='top', fill='x', pady=(0, 10))
+        # updater
+        update_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(update_frame, image=self.update_big_icon, text=' UPDATES', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.update_label: ClassVar = Label(update_frame, text='CHECK FOR UPDATES: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.update_label.pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(update_frame, relief='flat', text='YES', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=True, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=False, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        update_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
         Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -291,14 +313,6 @@ class Sounder:
         Label(default_frame, image=self.restore_icon, text=' DEFAULT SETTINGS', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
         ttk.Button(default_frame, text='RESTORE DEFAULT SETTINGS', style='restore.TButton', takefocus=False, command=self.default_settings).pack(side='top', fill='x', pady=(5, 10), padx=10)
         default_frame.pack(side='top', fill='x', pady=(0, 10))
-        # debugger
-        if self.settings['debugger']:
-            debugger_frame: ClassVar = Frame(self.settings_cards, background='#111')
-            Label(debugger_frame, image=self.restore_icon, text=' DEBUGGER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-            ttk.Button(debugger_frame, text='OPEN DEBUGGER', style='folder.TButton', takefocus=False, command=lambda: Monitor(self)).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10))
-            debugger_frame.pack(side='top', fill='x', pady=(0, 10))
-
-
         # update canvas
         self.settings_cards.bind('<Configure>', lambda _: self.settings_canvas.configure(scrollregion=self.settings_canvas.bbox('all')))
         self.settings_window: ClassVar = self.settings_canvas.create_window((0, 0), window=self.settings_cards, anchor='nw')
@@ -311,10 +325,12 @@ class Sounder:
         # main window stuff
         self.main_window.bind('<MouseWheel>', self.on_mouse)
         self.search_box.bind('<Return>', self.search_song)
+        # turtel
+        self.main_window.bind('<F12>', self.open_debugger)
+        # bond spacebar to play button
+        self.main_window.bind('<space>', self.space_play)
         # change how the closing of the program works
-        self.main_window.protocol('WM_DELETE_WINDOW', self.close)
-        # load last frame that was selected by the user
-        # apply settings
+        self.main_window.protocol('WM_DELETE_WINDOW', self.close)        # apply settings
         self.apply_settings()
         # show window
         self.main_window.after(150, lambda: self.main_window.deiconify())
@@ -338,6 +354,7 @@ class Sounder:
             self.cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\cover_art.png').resize((220, 220)))
             self.playlist_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\playlist.png').resize((35, 35)))
             self.settings_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\settings.png').resize((35, 35)))
+            self.debugger_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\turtle.png').resize((35, 35)))
             self.music_folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\music_folder.png').resize((35, 35)))
             self.folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\folder.png').resize((40, 40)))
             self.play_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((30, 30)))
@@ -369,8 +386,10 @@ class Sounder:
             self.power_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\power.png').resize((40, 40)))
             self.time_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\time.png').resize((40, 40)))
             self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\transition.png').resize((40, 40)))
+            self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((15, 15)))
+            self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((40, 40)))
         except Exception as err_obj:
-            error(err_obj, exc_info=True)
+            self.dump_err(err_obj, False)
 
     def music_card(self, song) -> None:
         title: str = splitext(basename(song))[0]
@@ -405,7 +424,7 @@ class Sounder:
                 else:
                     self.songs_metadata[song]: list = [None, None]
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def switch_frame(self) -> None:
         SELECTED: str = self.selected.get()
@@ -418,6 +437,8 @@ class Sounder:
             self.folder_frame.lift()
         elif SELECTED == 'settings':
             self.settings_frame.lift()
+        elif SELECTED == 'debugger':
+            self.debugger_frame.lift()
         del SELECTED
 
     def folder_card(self, path: str) -> None:
@@ -472,10 +493,12 @@ class Sounder:
         if isfile("errors.log"):
             startfile("errors.log")
 
-    def dump_err(self, err_obj: ClassVar) -> None:
-        self.error_reason['text'] = str(err_obj)
-        self.error_frame.lift()
+    def dump_err(self, err_obj: ClassVar, critical: bool) -> None:
+        if critical:
+            self.error_reason['text'] = str(err_obj).strip()
+            self.error_frame.lift()
         error(err_obj, exc_info=True)
+        self.dumps.append(format_exc())
 
     def load_settings(self) -> None:
         try:
@@ -484,9 +507,9 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'debugger': False}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True}
         except Exception as err_obj:
-            print(err_obj)
+            self.dump_err(err_obj, False)
 
     def apply_settings(self) -> None:
         try:
@@ -507,6 +530,9 @@ class Sounder:
             self.change_precision()
             # transition
             self.transition_scale.set(self.settings['transition'])
+            # update
+            self.update.set(self.settings['update'])
+            self.change_update()
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
@@ -521,73 +547,89 @@ class Sounder:
                     self.song = self.playlist[0]
                     self.action_play()
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def save_settings(self) -> None:
         try:
             with open('settings.json', 'w') as file:
                 dump(self.settings, file)
         except Exception as err_obj:
-            print(err_obj)
+            self.dump_err(err_obj, False)
 
     def settings_correction(self) -> None:
         frames: list = ['playback', 'playlist', 'folder', 'settings']
         try:
             self.settings['last_card']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['last_card'] = ''
         finally:
             if not self.settings['last_card'] in frames:
                 self.settings['last_card']: str = 'playback'
         try:
-            self.settings['folders']: list = list(
-                set(self.settings['folders']))
+            self.settings['folders']: list = list(set(self.settings['folders']))
         except Exception as err_obj:
-            print(err_obj)
+            self.dump_err(err_obj, False)
         try:
             self.settings['shuffle']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['shuffle']: bool = False
         try:
             self.settings['repeat']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['repeat']: str = 'none'
         try:
             self.settings['wheel_acceleration']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['wheel_acceleration']: float = 1.0 
         try:
             self.settings['width']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['width']: int = 750
         try:
             self.settings['height']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['height']: int = 450
         try:
             self.settings['volume']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['volume']: float = 0.50
         try:
             self.settings['song']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['song']: str = ''
         try:
             self.settings['on_startup']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['on_startup']: str = 'DO NOTHING'
         try:
             self.settings['time_precision']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['time_precision']: str = 'PRECISE'
         try:
             self.settings['transition']
-        except Exception as _:
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
             self.settings['transition']: int = 0
         try:
-            self.settings['debugger']
-        except Exception as _:
-            self.settings['debugger']: bool = False
+            self.settings['update']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['update']: bool = True
+        try:
+            if 'version' in self.settings:
+                del self.settings['version']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -637,7 +679,7 @@ class Sounder:
             self.update_active_card()
             self.move_to_view()
         except Exception as err_obj:
-            error(err_obj, exc_info=True)
+            self.dump_err(err_obj, False)
 
     def refresh_songs(self) -> None:
         self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71)
@@ -666,7 +708,7 @@ class Sounder:
             del disallowed_chars
             return True
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def search_song(self, event=None) -> None:
         word: str = str(self.search_box.get())
@@ -701,6 +743,7 @@ class Sounder:
         self.update_lenght()
         self.update_num_of_songs()
         self.update_active_card()
+        self.move_to_view()
         del word, result
 
     def info_card(self, msg: str, frame: ClassVar) -> None:
@@ -795,7 +838,7 @@ class Sounder:
             mixer.pre_init(44100, -16, 2, 1024)
             mixer.init()
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def toggle_volume(self) -> None:
         self.settings['volume'] = 0.00
@@ -831,7 +874,7 @@ class Sounder:
                 self.songs_metadata[self.song][1].configure(image=self.pause_icon)
                 self.active_card.append(self.songs_metadata[self.song][1])
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def update_play_button(self) -> None:
         if mixer.music.get_busy() and self.paused:
@@ -911,11 +954,13 @@ class Sounder:
                 self.update_play_button()
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
+                elif len(self.get_all_widgets(self.debugger_frame)) > 0 and active_count() == 2:
+                    Thread(target=self.play_thread, daemon=True).start()
                 if SELECTED != 'playlist':
                     self.move_to_view()
                 del SELECTED
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def pause_song(self) -> None:
         if mixer.music.get_busy() and bool(self.songs):
@@ -930,6 +975,9 @@ class Sounder:
             self.paused = False
             self.update_active_card()
             self.update_play_button()
+
+    def space_play(self, event) -> None:
+        self.action_play()
 
     def play_thread(self) -> None:
         try:
@@ -952,7 +1000,7 @@ class Sounder:
             else:
                 self.main_window.after((self.settings['transition'] * 1000), self.after_wait)
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def update_songs_metadata(self) -> None:
         if bool(self.song):
@@ -1024,14 +1072,14 @@ class Sounder:
                     self.update_active_card()
                     self.update_play_button()
         except Exception as err_obj:
-            self.dump_err(err_obj)
+            self.dump_err(err_obj, True)
 
     def change_acceleration(self, event) -> None:
         self.settings['wheel_acceleration'] = round(float(event), 2)
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'debugger': False}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True}
         self.close()
     
     def change_startup(self) -> None:
@@ -1055,16 +1103,59 @@ class Sounder:
         self.settings['transition'] = int(float(event))
         self.transition_label['text'] = f'VALUE: {self.settings["transition"]}s'
 
+    def change_update(self) -> None:
+        self.settings['update'] = self.update.get()
+        if bool(self.settings['update']):
+            self.update_label['text'] = 'CHECK FOR UPDATES: YES'
+        else:
+            self.update_label['text'] = 'CHECK FOR UPDATES: NO'
 
-class Monitor:
-    def __init__(self, object):
-        self.monitor: ClassVar = Tk()
-        self.monitor.mainloop()
+    def check_update(self) -> None:
+        try:
+            server_version: str = get("https://raw.githubusercontent.com/losek1/Sounder3/master/updates/version.txt").text
+            if int(self.VERSION.replace('.', '')) < int(server_version.replace('.', '')):
+                ttk.Button(self.settings_top_frame, image=self.update_icon, text='UPDATE NOW', style='folder.TButton', takefocus=False, compound='left', command=self.update_now).place(x=167, rely=0.5, anchor='w', height=35)
+            del server_version
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+
+    def update_now(self) -> None:
+        self.settings['version']: str = self.VERSION
+        startfile('updater.exe')
+        self.close()
+
+    def open_debugger(self, event) -> None:
+        Radiobutton(self.select_frame, image=self.debugger_icon, relief='flat', indicatoron=False, bd=0, background='#111', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', variable=self.selected, value='debugger', command=self.switch_frame).place(x=156, y=0, width=52, relheight=1)
+        self.main_window.unbind('<F12>')
+        Label(self.debugger_frame, text='DEBUGGER', font=('Consolas bold', 20), background='#212121', foreground='#fff').pack(side='top', fill='x', pady=5)
+        self.debugger_threads: ClassVar = Label(self.debugger_frame, text=f'NUMBER OF THREADS {active_count()}', font=('Consolas bold', 12), background='#111', foreground='#fff')
+        self.debugger_song: ClassVar = Label(self.debugger_frame, text=f'SONG {self.song}', font=('Consolas bold', 12), background='#111', foreground='#fff')
+        self.debugger_folders: ClassVar = Label(self.debugger_frame, text=f'{len(self.settings["folders"])} FOLDERS', font=('Consolas bold', 12), background='#111', foreground='#fff')
+        self.debugger_settings: ClassVar = Label(self.debugger_frame, text=f'{len(self.settings)} SETTINGS, {len(self.songs_metadata)} MUTAGEN OBJECTS, {len(self.get_all_widgets(self.main_window))} ALL WIDGETS, {len(dir(self))} ITEMS IN SOUNDER OBJECT', font=('Consolas bold', 12), background='#111', foreground='#fff')
+        self.debugger_console: ClassVar = Text(self.debugger_frame, background='#111', foreground='#fff', selectbackground="#212121", selectforeground="#fff", bd=0, cursor="arrow", takefocus=0, font=('Consolas bold', 12), yscrollcommand=None)
+        self.debugger_threads.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
+        self.debugger_song.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
+        self.debugger_folders.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
+        self.debugger_settings.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
+        self.debugger_console.pack(side='top', fill='both', pady=(0, 10), padx=10, expand=True)
+        Thread(target=self.refresh_debugger, daemon=True).start()
+        self.selected.set('debugger')
+        self.debugger_frame.lift()
+
+    def refresh_debugger(self,) -> None:
+        while True:
+            self.debugger_threads['text'] = f'NUMBER OF THREADS {active_count()}'
+            self.debugger_song['text'] = f'SONG {self.song}'
+            self.debugger_folders['text'] = f'{len(self.settings["folders"])} FOLDERS'
+            self.debugger_settings['text'] = f'{len(self.settings)} SETTINGS, {len(self.songs_metadata)} MUTAGEN OBJECTS, {len(self.get_all_widgets(self.main_window))} ALL WIDGETS, {len(dir(self))} ITEMS IN SOUNDER OBJECT'
+            self.debugger_console['state'] = 'normal'
+            self.debugger_console.delete('1.0', 'end')
+            for err in self.dumps:
+                self.debugger_console.insert('end', f'{err}\n')
+            self.debugger_console['state'] = 'disabled'
+            sleep(1)
 
 if __name__ == '__main__':
-    try:
         Sounder()
-    except Exception as err_obj:
-        print(err_obj)
 
 
