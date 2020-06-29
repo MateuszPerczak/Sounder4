@@ -1,31 +1,25 @@
-
-ERROR:root:'version'
+ERROR:root:Couldn't open 'C:\Users\Mateusz\Music\Something Big.mp3'
 Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 632, in settings_correction
-    del self.settings['version']
-KeyError: 'version'
-ERROR:root:Couldn't open 'C:\Users\Mateusz\Music\Monster.mp3'
-Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 951, in play_song
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 950, in play_song
     mixer.music.load(self.song)
-pygame.error: Couldn't open 'C:\Users\Mateusz\Music\Monster.mp3'
-ERROR:root:Couldn't open ''
+pygame.error: Couldn't open 'C:\Users\Mateusz\Music\Something Big.mp3'
+ERROR:root:name 's' is not defined
 Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 951, in play_song
-    mixer.music.load(self.song)
-pygame.error: Couldn't open ''
-ERROR:root:name 'CIPSKO' is not defined
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1169, in open_menu
+    menu.deiconify(s)
+NameError: name 's' is not defined
+ERROR:root:name 's' is not defined
 Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
-    CIPSKO
-NameError: name 'CIPSKO' is not defined
-ERROR:root:name 'CIPSKO' is not defined
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1169, in open_menu
+    menu.deiconify()
+NameError: name 's' is not defined
+ERROR:root:name 's' is not defined
 Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
-    CIPSKO
-NameError: name 'CIPSKO' is not defined
-ERROR:root:name 'CIPSKO' is not defined
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1169, in open_menu
+    menu.deiconify()
+NameError: name 's' is not defined
+ERROR:root:'blacklist'
 Traceback (most recent call last):
-  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 1119, in check_update
-    CIPSKO
-NameError: name 'CIPSKO' is not defined
+  File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 642, in settings_correction
+    self.settings['blacklist']
+KeyError: 'blacklist'

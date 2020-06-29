@@ -3,7 +3,7 @@ from tkinter.filedialog import askdirectory
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
-from os import getcwd, listdir, startfile
+from os import getcwd, listdir, startfile, remove
 from os.path import basename, isfile, isdir, splitext, abspath, join
 from PIL import Image, ImageTk
 from json import dump, load
@@ -26,6 +26,7 @@ class Sounder:
         self.main_window: ClassVar = Tk()
         # hide window
         self.main_window.withdraw()
+        # configure window 
         self.main_window.minsize(680, 540)
         self.main_window.iconbitmap('icons\\icon.ico')
         self.main_window.title('SOUNDER')
@@ -41,8 +42,10 @@ class Sounder:
         self.main_theme.map('folder.TButton', background=[('pressed', '!disabled', '#111'), ('active', '#151515')])
         self.main_theme.configure('shuffle.TButton', background='#212121', relief='flat', font=('corbel', 12), foreground='#fff')
         self.main_theme.map('shuffle.TButton', background=[('pressed', '!disabled', '#151515'), ('active', '#212121')])
-        self.main_theme.configure('restore.TButton', background='#151515', relief='flat', font=('corbel', 12), foreground='#f04747')
-        self.main_theme.map('restore.TButton', background=[('pressed', '!disabled', '#d84040'), ('active', '#f04747')], foreground=[('pressed', '!disabled', '#151515'), ('active', '#151515')])
+        self.main_theme.configure('restore.TButton', background='#151515', relief='flat', font=('corbel', 12), foreground='#fff')
+        self.main_theme.map('restore.TButton', background=[('pressed', '!disabled', '#d84040'), ('active', '#f04747')], foreground=[('pressed', '!disabled', '#fff'), ('active', '#fff')])
+        self.main_theme.configure('menu.TButton', background='#151515', relief='flat', font=('corbel', 12), foreground='#fff')
+        self.main_theme.map('menu.TButton', background=[('pressed', '!disabled', '#151515'), ('active', '#212121')])
         self.main_theme.layout('Vertical.TScrollbar',[('Vertical.Scrollbar.trough', {'children': [('Vertical.Scrollbar.thumb', {'expand': '1', 'sticky': 'nswe'})], 'sticky': 'ns'})])
         self.main_theme.configure('Vertical.TScrollbar', gripcount=0, relief='flat', background='#212121', darkcolor='#212121', lightcolor='#212121', troughcolor='#212121', bordercolor='#212121', arrowcolor='#212121')
         self.main_theme.map('Vertical.TScrollbar', background=[('pressed', '!disabled', '#333'), ('disabled', '#212121'), ('active', '#111'), ('!active', '#111')])
@@ -81,9 +84,9 @@ class Sounder:
         self.playlist: list = []
         self.active_card: list = []
         self.volume: float = 0.0
-        self.song: str = ""
+        self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = "0.7.0"
+        self.VERSION: str = '0.8.0'
         self.dumps: list = []
         # on load
         self.load_images()
@@ -163,11 +166,15 @@ class Sounder:
         # volume bar
         self.volume_bar: ClassVar = ttk.Scale(volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
+        # menu frame
+        menu_frame: ClassVar = Frame(bottom_frame, background='#111')
+        ttk.Button(menu_frame, image=self.menu_icon, takefocus=False, command=self.open_menu).pack(side='left', anchor='center', padx=5)
         # place frames
         top_frame.pack(side='top', anchor='center', fill='both', expand=True)
         bottom_frame.pack(side='bottom', anchor='center', fill='x', ipady=45)
         buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
         volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
+        menu_frame.place(relx=0, y=10, relwidth=0.15, height=48, anchor='nw')
         progress_frame.place(relx=0.5, y=68, relwidth=1, height=20, anchor='n')
         # end
         # folder frame
@@ -237,8 +244,8 @@ class Sounder:
         # save settings 
         ttk.Button(self.settings_top_frame, image=self.save_icon, text='SAVE SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.save_settings).place(x=10, rely=0.5, anchor='w', height=35)
         # check for update
-        if bool(self.settings['update']) and isfile('updater.exe'):
-            self.main_window.after(2000, self.check_update)
+        if bool(self.settings['update']):
+            self.main_window.after(1000, self.check_update)
         # settings scrollbar
         self.settings_scrollbar: ClassVar = ttk.Scrollbar(self.settings_frame)
         # settings canvas
@@ -388,6 +395,8 @@ class Sounder:
             self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\transition.png').resize((40, 40)))
             self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((15, 15)))
             self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((40, 40)))
+            self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((30, 30)))
+            self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\trash.png').resize((15, 15)))
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -507,7 +516,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': []}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -630,6 +639,11 @@ class Sounder:
                 del self.settings['version']
         except Exception as err_obj:
             self.dump_err(err_obj, False)
+        try:
+            self.settings['blacklist']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['blacklist']: list = []
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -665,7 +679,8 @@ class Sounder:
         try:
             for folder in self.settings['folders']:
                 for file in listdir(folder):
-                    if splitext(file)[1] in supported_extensions:
+                    print(file in self.settings['blacklist'])
+                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist']:
                         self.songs.append(abspath(join(folder, file)))
             del supported_extensions
             self.playlist = self.songs
@@ -960,7 +975,7 @@ class Sounder:
                     self.move_to_view()
                 del SELECTED
         except Exception as err_obj:
-            self.dump_err(err_obj, True)
+            self.dump_err(err_obj, False)
 
     def pause_song(self) -> None:
         if mixer.music.get_busy() and bool(self.songs):
@@ -1006,10 +1021,8 @@ class Sounder:
         if bool(self.song):
             if self.songs_metadata[self.song][0] is not None:
                 if 'APIC:' in self.songs_metadata[self.song][0]:
-                    raw_album: bytes = self.songs_metadata[self.song][0].get("APIC:").data
-                    self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(raw_album)).resize((220, 220)))
+                    self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[self.song][0].get("APIC:").data)).resize((220, 220)))
                     self.cover_art.configure(image=self.new_cover_art_icon)
-                    del raw_album
                 else:
                     self.cover_art.configure(image=self.cover_art_icon)
                 if 'TIT2' in self.songs_metadata[self.song][0]:
@@ -1112,17 +1125,12 @@ class Sounder:
 
     def check_update(self) -> None:
         try:
-            server_version: str = get("https://raw.githubusercontent.com/losek1/Sounder3/master/updates/version.txt").text
+            server_version: str = get('https://raw.githubusercontent.com/losek1/Sounder4/master/updates/version.txt').text
             if int(self.VERSION.replace('.', '')) < int(server_version.replace('.', '')):
-                ttk.Button(self.settings_top_frame, image=self.update_icon, text='UPDATE NOW', style='folder.TButton', takefocus=False, compound='left', command=self.update_now).place(x=167, rely=0.5, anchor='w', height=35)
+                ttk.Button(self.settings_top_frame, image=self.update_icon, text='UPDATE', style='folder.TButton', takefocus=False, compound='left', command=lambda: open_browser('https://github.com/losek1/Sounder4/releases', new=0, autoraise=True)).place(x=167, rely=0.5, anchor='w', height=35)
             del server_version
         except Exception as err_obj:
-            self.dump_err(err_obj, False)
-
-    def update_now(self) -> None:
-        self.settings['version']: str = self.VERSION
-        startfile('updater.exe')
-        self.close()
+            self.dump_err(err_obj, False)  
 
     def open_debugger(self, event) -> None:
         Radiobutton(self.select_frame, image=self.debugger_icon, relief='flat', indicatoron=False, bd=0, background='#111', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', variable=self.selected, value='debugger', command=self.switch_frame).place(x=156, y=0, width=52, relheight=1)
@@ -1140,6 +1148,7 @@ class Sounder:
         self.debugger_console.pack(side='top', fill='both', pady=(0, 10), padx=10, expand=True)
         Thread(target=self.refresh_debugger, daemon=True).start()
         self.selected.set('debugger')
+        self.main_frame.lift()
         self.debugger_frame.lift()
 
     def refresh_debugger(self,) -> None:
@@ -1154,6 +1163,53 @@ class Sounder:
                 self.debugger_console.insert('end', f'{err}\n')
             self.debugger_console['state'] = 'disabled'
             sleep(1)
+
+    def open_menu(self) -> None:
+        try:
+            if bool(self.song) and bool(self.songs) and bool(self.song in self.playlist) and mixer.music.get_busy():
+                menu: ClassVar = Toplevel()
+                menu.withdraw()
+                menu.configure(background='#111')
+                menu.geometry(f'285x145+{self.main_window.winfo_x() + 18}+{self.main_window.winfo_y() + self.main_window.winfo_height() - 215}')
+                menu.overrideredirect(True)
+                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=self.remove_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                ttk.Button(menu, image=self.plus_icon, text='ADD TO BLACKLIST', style='menu.TButton', compound='left', takefocus=False, command=self.blacklist_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=self.delete_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                menu.deiconify()
+                menu.focus_force()
+                menu.bind('<FocusOut>', lambda _: menu.destroy())
+                menu.mainloop()
+                del menu
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+
+    def remove_song(self) -> None:
+        try:
+            if bool(self.song) and bool(self.songs) and bool(self.song in self.playlist):
+                mixer.music.unload()
+                self.playlist.remove(self.song)
+                self.main_window.focus_force()
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+
+    def delete_song(self) -> None:
+        try:
+            mixer.music.unload()
+            if self.song in self.playlist:
+                self.playlist.remove(self.song)
+            if self.song in self.songs:
+                self.songs.remove(self.song)
+            self.refresh_songs()
+            remove(self.song)
+            self.main_window.focus_force()
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+
+    def blacklist_song(self) -> None:
+        self.settings['blacklist'].append(basename(self.song))
+        self.remove_song()
+        self.main_window.focus_force()
+
 
 if __name__ == '__main__':
         Sounder()
