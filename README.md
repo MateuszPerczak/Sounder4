@@ -35,3 +35,4 @@ https://icons8.com/
 ![Picture of playlist](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app2.jpg)
 ![Picture of folders](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app3.jpg)
 ![Picture of settings](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app4.jpg)
+![Picture of song menu](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app5.jpg)
