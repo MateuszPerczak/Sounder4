@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text
+from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text, messagebox
 from tkinter.filedialog import askdirectory
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
@@ -86,7 +86,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.8.0'
+        self.VERSION: str = '0.8.4'
         self.dumps: list = []
         # on load
         self.load_images()
@@ -679,7 +679,6 @@ class Sounder:
         try:
             for folder in self.settings['folders']:
                 for file in listdir(folder):
-                    print(file in self.settings['blacklist'])
                     if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist']:
                         self.songs.append(abspath(join(folder, file)))
             del supported_extensions
@@ -918,9 +917,15 @@ class Sounder:
                 if (self.playlist.index(self.song) + 1) < len(self.playlist):
                     self.song = self.playlist[self.playlist.index(self.song) + 1]
                     self.play_song()
+                else:
+                    self.song = self.playlist[0]
+                    self.play_song()
             elif bool(self.songs) and self.song in self.songs:
                 if (self.songs.index(self.song) + 1) < len(self.songs):
                     self.song = self.songs[self.songs.index(self.song) + 1]
+                else:
+                    self.song = self.songs[0]
+                    self.play_song()
         else:
             self.play_song()
     
@@ -968,8 +973,6 @@ class Sounder:
                 self.update_active_card()
                 self.update_play_button()
                 if active_count() == 1:
-                    Thread(target=self.play_thread, daemon=True).start()
-                elif len(self.get_all_widgets(self.debugger_frame)) > 0 and active_count() == 2:
                     Thread(target=self.play_thread, daemon=True).start()
                 if SELECTED != 'playlist':
                     self.move_to_view()
@@ -1136,33 +1139,11 @@ class Sounder:
         Radiobutton(self.select_frame, image=self.debugger_icon, relief='flat', indicatoron=False, bd=0, background='#111', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', variable=self.selected, value='debugger', command=self.switch_frame).place(x=156, y=0, width=52, relheight=1)
         self.main_window.unbind('<F12>')
         Label(self.debugger_frame, text='DEBUGGER', font=('Consolas bold', 20), background='#212121', foreground='#fff').pack(side='top', fill='x', pady=5)
-        self.debugger_threads: ClassVar = Label(self.debugger_frame, text=f'NUMBER OF THREADS {active_count()}', font=('Consolas bold', 12), background='#111', foreground='#fff')
-        self.debugger_song: ClassVar = Label(self.debugger_frame, text=f'SONG {self.song}', font=('Consolas bold', 12), background='#111', foreground='#fff')
-        self.debugger_folders: ClassVar = Label(self.debugger_frame, text=f'{len(self.settings["folders"])} FOLDERS', font=('Consolas bold', 12), background='#111', foreground='#fff')
-        self.debugger_settings: ClassVar = Label(self.debugger_frame, text=f'{len(self.settings)} SETTINGS, {len(self.songs_metadata)} MUTAGEN OBJECTS, {len(self.get_all_widgets(self.main_window))} ALL WIDGETS, {len(dir(self))} ITEMS IN SOUNDER OBJECT', font=('Consolas bold', 12), background='#111', foreground='#fff')
         self.debugger_console: ClassVar = Text(self.debugger_frame, background='#111', foreground='#fff', selectbackground="#212121", selectforeground="#fff", bd=0, cursor="arrow", takefocus=0, font=('Consolas bold', 12), yscrollcommand=None)
-        self.debugger_threads.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
-        self.debugger_song.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
-        self.debugger_folders.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
-        self.debugger_settings.pack(side='top', fill='x', pady=(0, 10), padx=10, ipady=8)
         self.debugger_console.pack(side='top', fill='both', pady=(0, 10), padx=10, expand=True)
-        Thread(target=self.refresh_debugger, daemon=True).start()
         self.selected.set('debugger')
         self.main_frame.lift()
         self.debugger_frame.lift()
-
-    def refresh_debugger(self,) -> None:
-        while True:
-            self.debugger_threads['text'] = f'NUMBER OF THREADS {active_count()}'
-            self.debugger_song['text'] = f'SONG {self.song}'
-            self.debugger_folders['text'] = f'{len(self.settings["folders"])} FOLDERS'
-            self.debugger_settings['text'] = f'{len(self.settings)} SETTINGS, {len(self.songs_metadata)} MUTAGEN OBJECTS, {len(self.get_all_widgets(self.main_window))} ALL WIDGETS, {len(dir(self))} ITEMS IN SOUNDER OBJECT'
-            self.debugger_console['state'] = 'normal'
-            self.debugger_console.delete('1.0', 'end')
-            for err in self.dumps:
-                self.debugger_console.insert('end', f'{err}\n')
-            self.debugger_console['state'] = 'disabled'
-            sleep(1)
 
     def open_menu(self) -> None:
         try:
@@ -1172,9 +1153,9 @@ class Sounder:
                 menu.configure(background='#111')
                 menu.geometry(f'285x145+{self.main_window.winfo_x() + 18}+{self.main_window.winfo_y() + self.main_window.winfo_height() - 215}')
                 menu.overrideredirect(True)
-                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=self.remove_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                ttk.Button(menu, image=self.plus_icon, text='ADD TO BLACKLIST', style='menu.TButton', compound='left', takefocus=False, command=self.blacklist_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=self.delete_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                ttk.Button(menu, image=self.trash_icon, text='IGNORE SONG', style='menu.TButton', compound='left', takefocus=False, command=self.ignore_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='top', fill='x', padx=10, pady=(10, 0))
                 menu.deiconify()
                 menu.focus_force()
                 menu.bind('<FocusOut>', lambda _: menu.destroy())
@@ -1183,32 +1164,32 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
-    def remove_song(self) -> None:
+    def manage_song(self, delete: bool) -> None:
         try:
-            if bool(self.song) and bool(self.songs) and bool(self.song in self.playlist):
-                mixer.music.unload()
-                self.playlist.remove(self.song)
-                self.main_window.focus_force()
+            if bool(self.song):
+                song: str = self.song
+                if mixer.music.get_busy():
+                    mixer.music.unload()
+                    self.action_next()
+                if song in self.playlist:
+                    self.playlist.remove(song)
+                if song in self.songs:
+                    self.songs.remove(song)
+                if bool(delete):
+                    remove(song)
+                self.add_songs()
+                self.refresh_songs()
+                self.update_active_card()
+                del song
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
-    def delete_song(self) -> None:
+    def ignore_song(self) -> None:
         try:
-            mixer.music.unload()
-            if self.song in self.playlist:
-                self.playlist.remove(self.song)
-            if self.song in self.songs:
-                self.songs.remove(self.song)
-            self.refresh_songs()
-            remove(self.song)
-            self.main_window.focus_force()
+            self.settings['blacklist'].append(basename(self.song))
+            self.manage_song(False)
         except Exception as err_obj:
             self.dump_err(err_obj, False)
-
-    def blacklist_song(self) -> None:
-        self.settings['blacklist'].append(basename(self.song))
-        self.remove_song()
-        self.main_window.focus_force()
 
 
 if __name__ == '__main__':
