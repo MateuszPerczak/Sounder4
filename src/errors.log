@@ -23,3 +23,1409 @@ Traceback (most recent call last):
   File "c:/Users/Mateusz/Documents/Projekty Python/Sounder4/Sounder4.py", line 642, in settings_correction
     self.settings['blacklist']
 KeyError: 'blacklist'
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 710, in add_songs
+    self.music_card(song)
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:''
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 415, in music_card
+    if 'APIC:' in self.songs_metadata[self.song][0]:
+KeyError: ''
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:'NoneType' object has no attribute 'data'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 416, in music_card
+    cover_art_icon = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[song][0].get("APIC:").data)).resize((50, 50)))
+AttributeError: 'NoneType' object has no attribute 'data'
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:can't invoke "pack" command: application has been destroyed
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    self.menu_frame.pack(side='top', anchor='center', fill='x', expand=True)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\tkinter\__init__.py", line 2387, in pack_configure
+    self.tk.call(
+_tkinter.TclError: can't invoke "pack" command: application has been destroyed
+ERROR:root:local variable 'menu' referenced before assignment
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1174, in open_menu
+    menu.mainloop()
+UnboundLocalError: local variable 'menu' referenced before assignment
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 1159, in open_menu
+    if self.settings['windowed_options']:
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 656, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 656, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 663, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 664, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 655, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 656, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_options'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 657, in settings_correction
+    self.settings['windowed_options']
+KeyError: 'windowed_options'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 662, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 663, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 661, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 661, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 661, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 661, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:'windowed_menu'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 661, in settings_correction
+    self.settings['windowed_menu']
+KeyError: 'windowed_menu'
+ERROR:root:name 'audioread' is not defined
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audioread.audio_open(abspath(join(folder, file))) as f:
+NameError: name 'audioread' is not defined
+ERROR:root:
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audio_open(abspath(join(folder, file))) as f:
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\__init__.py", line 116, in audio_open
+    raise NoBackendError()
+audioread.exceptions.NoBackendError
+ERROR:root:
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audio_open(abspath(join(folder, file))) as f:
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\__init__.py", line 116, in audio_open
+    raise NoBackendError()
+audioread.exceptions.NoBackendError
+ERROR:root:
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audio_open(abspath(join(folder, file))) as f:
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\__init__.py", line 116, in audio_open
+    raise NoBackendError()
+audioread.exceptions.NoBackendError
+ERROR:root:
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audioread.audio_open(abspath(join(folder, file))) as f:
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\__init__.py", line 116, in audio_open
+    raise NoBackendError()
+audioread.exceptions.NoBackendError
+ERROR:root:[Errno 2] No such file or directory: 'A Sky Full of Stars.mp3'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 703, in scan_for_songs
+    with audioread.audio_open(file) as f:
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\__init__.py", line 111, in audio_open
+    return BackendClass(path)
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\audioread\rawread.py", line 62, in __init__
+    self._fh = open(filename, 'rb')
+FileNotFoundError: [Errno 2] No such file or directory: 'A Sky Full of Stars.mp3'
+ERROR:root:[WinError 32] Proces nie mo¿e uzyskaæ dostêpu do pliku, poniewa¿ jest on u¿ywany przez inny proces: 'C:\\Users\\Mateusz\\Music\\Daisies.mp3'
+Traceback (most recent call last):
+  File "C:\Users\Mateusz\Documents\GitHub\Sounder4\src\Sounder4.py", line 1195, in manage_song
+    rmfile(song)
+PermissionError: [WinError 32] Proces nie mo¿e uzyskaæ dostêpu do pliku, poniewa¿ jest on u¿ywany przez inny proces: 'C:\\Users\\Mateusz\\Music\\Daisies.mp3'
+ERROR:root:[Errno 2] No such file or directory: 'icons\\filter.png'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in load_images
+    self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\PIL\Image.py", line 2843, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: 'icons\\filter.png'
+ERROR:root:[Errno 2] No such file or directory: 'icons\\filter.png'
+Traceback (most recent call last):
+  File "c:/Users/Mateusz/Documents/GitHub/Sounder4/src/Sounder4.py", line 414, in load_images
+    self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
+  File "C:\Users\Mateusz\AppData\Local\Programs\Python\Python38\lib\site-packages\PIL\Image.py", line 2843, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: 'icons\\filter.png'

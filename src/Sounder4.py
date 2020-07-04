@@ -3,7 +3,7 @@ from tkinter.filedialog import askdirectory
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
-from os import getcwd, listdir, startfile, remove
+from os import getcwd, listdir, startfile, remove as rmfile
 from os.path import basename, isfile, isdir, splitext, abspath, join
 from PIL import Image, ImageTk
 from json import dump, load
@@ -27,7 +27,7 @@ class Sounder:
         # hide window
         self.main_window.withdraw()
         # configure window 
-        self.main_window.minsize(680, 540)
+        self.main_window.minsize(822, 555)
         self.main_window.iconbitmap('icons\\icon.ico')
         self.main_window.title('SOUNDER')
         self.main_window.configure(background='#212121')
@@ -79,6 +79,7 @@ class Sounder:
         self.on_startup: StringVar = StringVar()
         self.time_precision: StringVar = StringVar()
         self.update: BooleanVar = BooleanVar()
+        self.windowed_menu: BooleanVar = BooleanVar()
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
@@ -86,8 +87,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.8.4'
-        self.dumps: list = []
+        self.VERSION: str = '0.8.6'
         # on load
         self.load_images()
         # error_frame
@@ -166,15 +166,19 @@ class Sounder:
         # volume bar
         self.volume_bar: ClassVar = ttk.Scale(volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
+        # menu button
+        left_frame: ClassVar = Frame(bottom_frame, background='#111')
+        ttk.Button(left_frame, image=self.menu_icon, takefocus=False, command=self.open_music_menu).pack(side='left', anchor='center', padx=5)
         # menu frame
-        menu_frame: ClassVar = Frame(bottom_frame, background='#111')
-        ttk.Button(menu_frame, image=self.menu_icon, takefocus=False, command=self.open_menu).pack(side='left', anchor='center', padx=5)
+        self.menu_frame: ClassVar = Frame(top_frame, background='#151515')
+        ttk.Button(self.menu_frame, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='left', fill='x', padx=(10, 0), pady=10, expand=True)
+        ttk.Button(self.menu_frame, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='right', fill='x', padx=10, pady=10, expand=True)
         # place frames
         top_frame.pack(side='top', anchor='center', fill='both', expand=True)
         bottom_frame.pack(side='bottom', anchor='center', fill='x', ipady=45)
         buttons_frame.place(relx=0.5, y=10, width=350, height=48, anchor='n')
         volume_frame.place(relx=1, y=10, relwidth=0.22, height=48, anchor='ne')
-        menu_frame.place(relx=0, y=10, relwidth=0.15, height=48, anchor='nw')
+        left_frame.place(relx=0, y=10, relwidth=0.15, height=48, anchor='nw')
         progress_frame.place(relx=0.5, y=68, relwidth=1, height=20, anchor='n')
         # end
         # folder frame
@@ -217,6 +221,8 @@ class Sounder:
         self.playtime_label: ClassVar = Label(self.playlist_top_frame, image=self.clock_icon, text='00:00:00', compound='left', background='#111', foreground='#fff', font=('Consolas', 12))
         # number of songs
         self.num_of_songs = Label(self.playlist_top_frame, image=self.note_icon, text='', compound='left', background='#111', foreground='#fff', font=('Consolas', 12))
+        # sort menu
+        ttk.Button(self.playlist_top_frame, image=self.filter_icon, text='SORT BY', style='folder.TButton', takefocus=False, compound='left', command=self.open_sort_menu).place(x=678, rely=0.5, anchor='w', height=35, width=120)
         # place widgets
         self.playlist_play.place(x=285, rely=0.5, anchor='w', height=35)
         self.playtime_label.place(x=418, rely=0.5, anchor='w', height=35, width=120)
@@ -306,6 +312,15 @@ class Sounder:
         Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=False, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         update_frame.pack(side='top', fill='x', pady=(0, 10))
+        # windowed options
+        window_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(window_frame, image=self.large_menu_icon, text=' SONG MENU', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(window_frame, text='HOW THE SONG MENU SHOULD BE DISPLAYED', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(window_frame, relief='flat', text='WINDOWED', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.windowed_menu, value=True, command=self.change_menu).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(window_frame, relief='flat', text='BORDERLESS', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.windowed_menu, value=False, command=self.change_menu).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        window_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
         Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -332,8 +347,6 @@ class Sounder:
         # main window stuff
         self.main_window.bind('<MouseWheel>', self.on_mouse)
         self.search_box.bind('<Return>', self.search_song)
-        # turtel
-        self.main_window.bind('<F12>', self.open_debugger)
         # bond spacebar to play button
         self.main_window.bind('<space>', self.space_play)
         # change how the closing of the program works
@@ -361,22 +374,21 @@ class Sounder:
             self.cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\cover_art.png').resize((220, 220)))
             self.playlist_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\playlist.png').resize((35, 35)))
             self.settings_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\settings.png').resize((35, 35)))
-            self.debugger_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\turtle.png').resize((35, 35)))
-            self.music_folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\music_folder.png').resize((35, 35)))
             self.folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\folder.png').resize((40, 40)))
+            self.music_folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\music_folder.png').resize((35, 35)))
             self.play_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((30, 30)))
             self.pause_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\pause.png').resize((30, 30)))
             self.next_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\next.png').resize((30, 30)))
             self.previous_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\previous.png').resize((30, 30)))
-            self.plus_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\plus.png').resize((15, 15)))
-            self.refresh_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\refresh.png').resize((15, 15)))
+            self.plus_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\plus.png').resize((20, 20)))
+            self.refresh_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\refresh.png').resize((20, 20)))
             self.search_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\search.png').resize((20, 20)))
             self.close_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\close.png').resize((30, 30)))
             self.record_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\record.png').resize((40, 40)))
-            self.note_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\record.png').resize((15, 15)))
-            self.play_playlist: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((15, 15)))
+            self.note_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\record.png').resize((20, 20)))
+            self.play_playlist: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((20, 20)))
             self.shuffle_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\shuffle.png').resize((25, 25)))
-            self.clock_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\clock.png').resize((15, 15)))
+            self.clock_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\clock.png').resize((20, 20)))
             self.repeat_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat.png').resize((25, 25)))
             self.repeat_one_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat_one.png').resize((25, 25)))
             self.warning_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\warning.png').resize((85, 85)))
@@ -386,39 +398,46 @@ class Sounder:
             self.audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\audio.png').resize((25, 25)))
             self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\low_audio.png').resize((25, 25)))
             self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\med_audio.png').resize((25, 25)))
-            self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\save.png').resize((15, 15)))
+            self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\save.png').resize((20, 20)))
             self.logo_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\logo.png').resize((40, 40)))
             self.slider_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\slider.png').resize((40, 40)))
             self.restore_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\restore.png').resize((40, 40)))
             self.power_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\power.png').resize((40, 40)))
             self.time_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\time.png').resize((40, 40)))
             self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\transition.png').resize((40, 40)))
-            self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((15, 15)))
+            self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((20, 20)))
             self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((40, 40)))
             self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((30, 30)))
-            self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\trash.png').resize((15, 15)))
+            self.large_menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((40, 40)))
+            self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\trash.png').resize((20, 20)))
+            self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
+
+            
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
     def music_card(self, song) -> None:
-        title: str = splitext(basename(song))[0]
-        artist: str = 'Unknown'
-        length: str = '-:--:--'
-        if self.songs_metadata[song][0] is not None:
-            length = str(timedelta(seconds=int(self.songs_metadata[song][0].info.length)))
-            if 'TIT2' in self.songs_metadata[song][0]:
-                title = f'{self.songs_metadata[song][0]["TIT2"]}'
-            if 'TPE1' in self.songs_metadata[song][0]:
-                artist = f'{self.songs_metadata[song][0]["TPE1"]}'
-        music_frame: ClassVar = Frame(self.playlist_cards, background='#111')
-        Label(music_frame, image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
-        Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
-        Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
-        Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
-        self.songs_metadata[song][1]: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
-        self.songs_metadata[song][1].place(relx=1, rely=1, relheight=1, anchor='se')
-        music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
-        del title, artist, length, music_frame
+        try:
+            title: str = splitext(basename(song))[0]
+            artist: str = 'Unknown'
+            length: str = '-:--:--'
+            if self.songs_metadata[song][0] is not None:
+                length = str(timedelta(seconds=int(self.songs_metadata[song][0].info.length)))
+                if 'TIT2' in self.songs_metadata[song][0]:
+                    title = f'{self.songs_metadata[song][0]["TIT2"]}'
+                if 'TPE1' in self.songs_metadata[song][0]:
+                    artist = f'{self.songs_metadata[song][0]["TPE1"]}'
+            music_frame: ClassVar = Frame(self.playlist_cards, background='#111')
+            Label(music_frame, image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
+            Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
+            Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
+            # Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
+            self.songs_metadata[song][1]: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
+            self.songs_metadata[song][1].place(relx=1, rely=1, relheight=1, anchor='se')
+            music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
+            del title, artist, length, music_frame
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
 
     def remove_music_cards(self) -> None:
         for widget in self.get_all_widgets(self.playlist_cards):
@@ -446,8 +465,6 @@ class Sounder:
             self.folder_frame.lift()
         elif SELECTED == 'settings':
             self.settings_frame.lift()
-        elif SELECTED == 'debugger':
-            self.debugger_frame.lift()
         del SELECTED
 
     def folder_card(self, path: str) -> None:
@@ -507,7 +524,6 @@ class Sounder:
             self.error_reason['text'] = str(err_obj).strip()
             self.error_frame.lift()
         error(err_obj, exc_info=True)
-        self.dumps.append(format_exc())
 
     def load_settings(self) -> None:
         try:
@@ -516,7 +532,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': []}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'windowed_menu': True}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -534,6 +550,8 @@ class Sounder:
             self.update_volume()
             # acceleration
             self.acceleration_scale.set(self.settings['wheel_acceleration'])
+            # windowed menu
+            self.windowed_menu.set(self.settings['windowed_menu'])
             # time resolution
             self.time_precision.set(self.settings['time_precision'])
             self.change_precision()
@@ -644,6 +662,11 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
             self.settings['blacklist']: list = []
+        try:
+            self.settings['windowed_menu']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['windowed_menu']: bool = True
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -1095,7 +1118,7 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'windowed_menu': True}
         self.close()
     
     def change_startup(self) -> None:
@@ -1126,6 +1149,9 @@ class Sounder:
         else:
             self.update_label['text'] = 'CHECK FOR UPDATES: NO'
 
+    def change_menu(self) -> None:
+        self.settings['windowed_menu'] = self.windowed_menu.get()
+
     def check_update(self) -> None:
         try:
             server_version: str = get('https://raw.githubusercontent.com/losek1/Sounder4/master/updates/version.txt').text
@@ -1135,32 +1161,27 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)  
 
-    def open_debugger(self, event) -> None:
-        Radiobutton(self.select_frame, image=self.debugger_icon, relief='flat', indicatoron=False, bd=0, background='#111', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', variable=self.selected, value='debugger', command=self.switch_frame).place(x=156, y=0, width=52, relheight=1)
-        self.main_window.unbind('<F12>')
-        Label(self.debugger_frame, text='DEBUGGER', font=('Consolas bold', 20), background='#212121', foreground='#fff').pack(side='top', fill='x', pady=5)
-        self.debugger_console: ClassVar = Text(self.debugger_frame, background='#111', foreground='#fff', selectbackground="#212121", selectforeground="#fff", bd=0, cursor="arrow", takefocus=0, font=('Consolas bold', 12), yscrollcommand=None)
-        self.debugger_console.pack(side='top', fill='both', pady=(0, 10), padx=10, expand=True)
-        self.selected.set('debugger')
-        self.main_frame.lift()
-        self.debugger_frame.lift()
-
-    def open_menu(self) -> None:
+    def open_music_menu(self) -> None:
         try:
             if bool(self.song) and bool(self.songs) and bool(self.song in self.playlist) and mixer.music.get_busy():
-                menu: ClassVar = Toplevel()
-                menu.withdraw()
-                menu.configure(background='#111')
-                menu.geometry(f'285x145+{self.main_window.winfo_x() + 18}+{self.main_window.winfo_y() + self.main_window.winfo_height() - 215}')
-                menu.overrideredirect(True)
-                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                ttk.Button(menu, image=self.trash_icon, text='IGNORE SONG', style='menu.TButton', compound='left', takefocus=False, command=self.ignore_song).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                menu.deiconify()
-                menu.focus_force()
-                menu.bind('<FocusOut>', lambda _: menu.destroy())
-                menu.mainloop()
-                del menu
+                if self.settings['windowed_menu']:
+                    menu: ClassVar = Toplevel()
+                    menu.withdraw()
+                    menu.configure(background='#151515')
+                    menu.geometry(f'285x100+{self.main_window.winfo_x() + 18}+{self.main_window.winfo_y() + self.main_window.winfo_height() - 170}')
+                    menu.overrideredirect(True)
+                    ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                    ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='top', fill='x', padx=10, pady=(10, 0))
+                    menu.deiconify()
+                    menu.focus_force()
+                    menu.bind('<FocusOut>', lambda _: menu.destroy())
+                    menu.mainloop()
+                elif not self.settings['windowed_menu']:
+                    if self.menu_frame.winfo_ismapped():
+                        self.menu_frame.pack_forget()
+                    else:
+                        self.menu_frame.pack(side='left', anchor='s', fill='x', expand=True)
+
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -1170,13 +1191,16 @@ class Sounder:
                 song: str = self.song
                 if mixer.music.get_busy():
                     mixer.music.unload()
+                if len(self.playlist) > 1:
                     self.action_next()
                 if song in self.playlist:
                     self.playlist.remove(song)
                 if song in self.songs:
                     self.songs.remove(song)
-                if bool(delete):
-                    remove(song)
+                if bool(delete) and isfile(song):
+                    rmfile(song)
+                elif isfile(song):
+                    self.settings['blacklist'].append(basename(song))
                 self.add_songs()
                 self.refresh_songs()
                 self.update_active_card()
@@ -1184,12 +1208,11 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
-    def ignore_song(self) -> None:
-        try:
-            self.settings['blacklist'].append(basename(self.song))
-            self.manage_song(False)
-        except Exception as err_obj:
-            self.dump_err(err_obj, False)
+    def open_sort_menu(self) -> None:
+        if bool(self.songs) and bool(self.playlist):
+            print('xdd')
+
+        
 
 
 if __name__ == '__main__':
