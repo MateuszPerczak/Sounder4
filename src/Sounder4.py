@@ -78,8 +78,8 @@ class Sounder:
         self.selected: StringVar = StringVar()
         self.on_startup: StringVar = StringVar()
         self.time_precision: StringVar = StringVar()
+        self.sort_by: StringVar = StringVar()
         self.update: BooleanVar = BooleanVar()
-        self.windowed_menu: BooleanVar = BooleanVar()
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
@@ -87,7 +87,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.8.6'
+        self.VERSION: str = '0.8.9'
         # on load
         self.load_images()
         # error_frame
@@ -169,6 +169,8 @@ class Sounder:
         # menu button
         left_frame: ClassVar = Frame(bottom_frame, background='#111')
         ttk.Button(left_frame, image=self.menu_icon, takefocus=False, command=self.open_music_menu).pack(side='left', anchor='center', padx=5)
+        self.favorites_button: ClassVar = ttk.Button(left_frame, image=self.heart_icon, takefocus=False, command=self.add_favorites)
+        self.favorites_button.pack(side='left', anchor='center', padx=5)
         # menu frame
         self.menu_frame: ClassVar = Frame(top_frame, background='#151515')
         ttk.Button(self.menu_frame, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='left', fill='x', padx=(10, 0), pady=10, expand=True)
@@ -222,11 +224,12 @@ class Sounder:
         # number of songs
         self.num_of_songs = Label(self.playlist_top_frame, image=self.note_icon, text='', compound='left', background='#111', foreground='#fff', font=('Consolas', 12))
         # sort menu
-        ttk.Button(self.playlist_top_frame, image=self.filter_icon, text='SORT BY', style='folder.TButton', takefocus=False, compound='left', command=self.open_sort_menu).place(x=678, rely=0.5, anchor='w', height=35, width=120)
+        self.sort_button: ClassVar = ttk.Button(self.playlist_top_frame, image=self.filter_icon, text='SORT BY', style='folder.TButton', takefocus=False, compound='left', command=self.open_sort_menu)
         # place widgets
         self.playlist_play.place(x=285, rely=0.5, anchor='w', height=35)
         self.playtime_label.place(x=418, rely=0.5, anchor='w', height=35, width=120)
         self.num_of_songs.place(x=548, rely=0.5, anchor='w', height=35, width=120)
+        self.sort_button.place(x=678, rely=0.5, anchor='w', height=35, width=120)
         self.playlist_top_frame.pack(side='top', fill='x', ipady=20, pady=10)
         # scrollbar
         self.playlist_scrollbar: ClassVar = ttk.Scrollbar(self.playlist_frame)
@@ -312,15 +315,6 @@ class Sounder:
         Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=False, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         update_frame.pack(side='top', fill='x', pady=(0, 10))
-        # windowed options
-        window_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(window_frame, image=self.large_menu_icon, text=' SONG MENU', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(window_frame, text='HOW THE SONG MENU SHOULD BE DISPLAYED', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Radiobutton(window_frame, relief='flat', text='WINDOWED', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
-                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.windowed_menu, value=True, command=self.change_menu).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(window_frame, relief='flat', text='BORDERLESS', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
-                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.windowed_menu, value=False, command=self.change_menu).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        window_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
         Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -350,11 +344,14 @@ class Sounder:
         # bond spacebar to play button
         self.main_window.bind('<space>', self.space_play)
         # change how the closing of the program works
-        self.main_window.protocol('WM_DELETE_WINDOW', self.close)        # apply settings
+        self.main_window.protocol('WM_DELETE_WINDOW', self.close)
+        # apply settings
         self.apply_settings()
         # show window
         self.main_window.after(150, lambda: self.main_window.deiconify())
         # self.main_window.after(3000, lambda: print(self.settings_cards.winfo_height()))
+        # init sort menu
+        self.main_window.after(300, lambda: self.init_sort_menu())
         self.main_window.mainloop()
 
     def on_mouse(self, event) -> None:
@@ -408,11 +405,12 @@ class Sounder:
             self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((20, 20)))
             self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((40, 40)))
             self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((30, 30)))
-            self.large_menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((40, 40)))
             self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\trash.png').resize((20, 20)))
             self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
-
-            
+            self.alphabetic_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\alphabetic.png').resize((30, 30)))
+            self.heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\heart.png').resize((30, 30)))
+            self.large_repeat_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat_one.png').resize((30, 30)))
+            self.filled_heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filled_heart.png').resize((30, 30)))
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -532,7 +530,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'windowed_menu': True}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': []}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -550,8 +548,6 @@ class Sounder:
             self.update_volume()
             # acceleration
             self.acceleration_scale.set(self.settings['wheel_acceleration'])
-            # windowed menu
-            self.windowed_menu.set(self.settings['windowed_menu'])
             # time resolution
             self.time_precision.set(self.settings['time_precision'])
             self.change_precision()
@@ -573,6 +569,8 @@ class Sounder:
                 if bool(self.playlist):
                     self.song = self.playlist[0]
                     self.action_play()
+            # sort
+            self.sort_by.set(self.settings['sort_by'])
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -663,10 +661,15 @@ class Sounder:
             self.dump_err(err_obj, False)
             self.settings['blacklist']: list = []
         try:
-            self.settings['windowed_menu']
+            self.settings['sort_by']
         except Exception as err_obj:
             self.dump_err(err_obj, False)
-            self.settings['windowed_menu']: bool = True
+            self.settings['sort_by']: str = 'name'
+        try:
+            self.settings['favorites']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['favorites']: list = []
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -798,6 +801,7 @@ class Sounder:
             self.previous_button.state(['disabled'])
             self.next_button.state(['disabled'])
             self.repeat_button.state(['disabled'])
+            self.sort_button.state(['disabled'])
         else:
             self.playlist_play.state(['!disabled'])
             self.shuffle_button.state(['!disabled'])
@@ -805,6 +809,7 @@ class Sounder:
             self.previous_button.state(['!disabled'])
             self.next_button.state(['!disabled'])
             self.repeat_button.state(['!disabled'])
+            self.sort_button.state(['!disabled'])
 
     def update_buttons(self) -> None:
         # shuffle
@@ -857,10 +862,24 @@ class Sounder:
         if self.settings['shuffle'] and len(self.playlist) > 1:
             shuffle(self.songs)
         else:
-            self.songs.sort(key=self.sort_by_letter)
+            if self.settings['sort_by'] == 'name':
+                self.songs.sort(key=self.sort_by_letter)
+            elif self.settings['sort_by'] == 'favorites':
+                self.songs.sort(key=self.sort_by_favorites)
+            elif self.settings['sort_by'] == 'most_played':
+                self.songs.sort(key=self.sort_by_most_played)
 
-    def sort_by_letter(self, letter: str) -> str:
-        return splitext(basename(letter))[0].split(' ')[0].lower()
+    def sort_by_letter(self, song: str) -> str:
+        return splitext(basename(song))[0].split(' ')[0].lower()
+
+    def sort_by_favorites(self, song: str) -> str:
+        if basename(song) in self.settings['favorites']:
+            return 'A'
+        return 'Z'
+    
+    def sort_by_most_played(self, song: str) -> str:
+        print('most_played')
+        return ''
 
     def get_playtime(self) -> None:
         play_time: float = 0.0
@@ -920,6 +939,12 @@ class Sounder:
            self.play_button.configure(image=self.pause_icon)
         else:
             self.play_button.configure(image=self.play_icon)
+
+    def update_favorite_button(self) -> None:
+        if basename(self.song) in self.settings['favorites']:
+            self.favorites_button.configure(image=self.filled_heart_icon)
+        else:
+            self.favorites_button.configure(image=self.heart_icon)
 
     def action_play(self) -> None:
         if bool(self.playlist) or bool(self.songs):
@@ -995,6 +1020,7 @@ class Sounder:
                 self.update_songs_metadata()
                 self.update_active_card()
                 self.update_play_button()
+                self.update_favorite_button()
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
                 if SELECTED != 'playlist':
@@ -1118,7 +1144,7 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'windowed_menu': True}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': []}
         self.close()
     
     def change_startup(self) -> None:
@@ -1149,9 +1175,6 @@ class Sounder:
         else:
             self.update_label['text'] = 'CHECK FOR UPDATES: NO'
 
-    def change_menu(self) -> None:
-        self.settings['windowed_menu'] = self.windowed_menu.get()
-
     def check_update(self) -> None:
         try:
             server_version: str = get('https://raw.githubusercontent.com/losek1/Sounder4/master/updates/version.txt').text
@@ -1163,25 +1186,10 @@ class Sounder:
 
     def open_music_menu(self) -> None:
         try:
-            if bool(self.song) and bool(self.songs) and bool(self.song in self.playlist) and mixer.music.get_busy():
-                if self.settings['windowed_menu']:
-                    menu: ClassVar = Toplevel()
-                    menu.withdraw()
-                    menu.configure(background='#151515')
-                    menu.geometry(f'285x100+{self.main_window.winfo_x() + 18}+{self.main_window.winfo_y() + self.main_window.winfo_height() - 170}')
-                    menu.overrideredirect(True)
-                    ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                    ttk.Button(menu, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='top', fill='x', padx=10, pady=(10, 0))
-                    menu.deiconify()
-                    menu.focus_force()
-                    menu.bind('<FocusOut>', lambda _: menu.destroy())
-                    menu.mainloop()
-                elif not self.settings['windowed_menu']:
-                    if self.menu_frame.winfo_ismapped():
-                        self.menu_frame.pack_forget()
-                    else:
-                        self.menu_frame.pack(side='left', anchor='s', fill='x', expand=True)
-
+            if self.menu_frame.winfo_ismapped():
+                self.menu_frame.pack_forget()
+            else:
+                self.menu_frame.pack(side='left', anchor='s', fill='x', expand=True)
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -1208,12 +1216,43 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
+    def init_sort_menu(self) -> None:
+            self.sort_menu: ClassVar = Toplevel()
+            self.sort_menu.withdraw()
+            self.sort_menu.configure(background='#111')
+            self.sort_menu.title('SORT BY')
+            self.sort_menu.iconbitmap('icons\\filter.ico')
+            self.sort_menu.resizable(False, False)
+            self.sort_menu.protocol('WM_DELETE_WINDOW', self.sort_menu.withdraw)
+            self.sort_menu.focus_force()
+            self.sort_menu.bind('<FocusOut>', lambda _: self.sort_menu.withdraw())
+            Radiobutton(self.sort_menu, relief='flat', image=self.alphabetic_icon, text=' NAME', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='name', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
+            Radiobutton(self.sort_menu, relief='flat', image=self.filled_heart_icon, text=' FAVORITES', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='favorites', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
+            Radiobutton(self.sort_menu, relief='flat', image=self.large_repeat_icon, text=' MOST PLAYED', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='most_played', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
+            self.sort_menu.mainloop()
+
     def open_sort_menu(self) -> None:
-        if bool(self.songs) and bool(self.playlist):
-            print('xdd')
+        if bool(self.songs):
+            if self.sort_menu.winfo_ismapped():
+                self.sort_menu.withdraw()
+            else:
+                self.sort_menu.geometry(f'300x160+{int(self.main_window.winfo_x() + ((self.main_window.winfo_width() - 300) / 2))}+{int(self.main_window.winfo_y() + ((self.main_window.winfo_height() - 160) / 2))}')
+                self.sort_menu.deiconify()
+                
+    def change_sort(self) -> None:
+        self.settings['sort_by'] = self.sort_by.get()
+        if not self.settings['shuffle']:
+            self.sort_songs()
+            self.add_songs()
+            self.update_active_card()
+            self.move_to_view()
 
-        
-
+    def add_favorites(self) -> None:
+        if basename(self.song) in self.settings['favorites']:
+            self.settings['favorites'].remove(basename(self.song))
+        else:
+            self.settings['favorites'].append(basename(self.song))
+        self.update_favorite_button()
 
 if __name__ == '__main__':
         Sounder()
