@@ -88,7 +88,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.0'
+        self.VERSION: str = '0.9.1'
         # on load
         self.load_images()
         # error_frame
@@ -284,7 +284,7 @@ class Sounder:
         Radiobutton(move_song_frame, relief='flat', text='NEVER', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='NEVER', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         Radiobutton(move_song_frame, relief='flat', text='WHILE PLAYLIST IS NOT ACTIVE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
-                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='WHILE PLAYLIST IS NOT ACTIVE', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='WHILE', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         move_song_frame.pack(side='top', fill='x', pady=(0, 10))
         # time precision
         time_precision_frame = Frame(self.settings_cards, background='#111')
@@ -354,8 +354,6 @@ class Sounder:
         # main window stuff
         self.main_window.bind('<MouseWheel>', self.on_mouse)
         self.search_box.bind('<Return>', self.search_song)
-        # bond spacebar to play button
-        self.main_window.bind('<space>', self.space_play)
         # change how the closing of the program works
         self.main_window.protocol('WM_DELETE_WINDOW', self.close)
         # apply settings
@@ -543,7 +541,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'ALWAYS'}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE'}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -1029,7 +1027,7 @@ class Sounder:
             if bool(self.song) and bool(self.playlist) or bool(self.songs):
                 if self.settings['move_song'] == 'ALWAYS':
                     self.move_to_view()
-                elif self.settings['move_song'] != 'NEVER':
+                elif self.settings['move_song'] == 'WHILE':
                     SELECTED: str = self.selected.get()
                     if SELECTED != 'playlist':
                         self.move_to_view()
@@ -1059,9 +1057,6 @@ class Sounder:
             self.paused = False
             self.update_active_card()
             self.update_play_button()
-
-    def space_play(self, event) -> None:
-        self.action_play()
 
     def play_thread(self) -> None:
         try:
@@ -1161,7 +1156,7 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'ALWAYS'}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE'}
         self.close()
     
     def change_startup(self) -> None:
@@ -1251,7 +1246,7 @@ class Sounder:
             if self.sort_menu.winfo_ismapped():
                 self.sort_menu.withdraw()
             else:
-                self.sort_menu.geometry(f'300x120+{int(self.main_window.winfo_x() + ((self.main_window.winfo_width() - 300) / 2))}+{int(self.main_window.winfo_y() + ((self.main_window.winfo_height() - 120) / 2))}')
+                self.sort_menu.geometry(f'300x110+{int(self.main_window.winfo_x() + ((self.main_window.winfo_width() - 300) / 2))}+{int(self.main_window.winfo_y() + ((self.main_window.winfo_height() - 110) / 2))}')
                 self.sort_menu.deiconify()
                 
     def change_sort(self) -> None:
@@ -1277,7 +1272,7 @@ class Sounder:
             self.move_song_label['text'] = 'ALWAYS MOVE PLAYING SONG TO VIEW'
         elif value == 'NEVER':
             self.move_song_label['text'] = 'NEVER MOVE PLAYING SONG TO VIEW'
-        else:
+        elif value == 'WHILE':
             self.move_song_label['text'] = 'WHILE PLAYLIST IS NOT ACTIVE MOVE PLAYING SONG TO VIEW'
         del value
     
