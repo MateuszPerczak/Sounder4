@@ -79,6 +79,7 @@ class Sounder:
         self.on_startup: StringVar = StringVar()
         self.time_precision: StringVar = StringVar()
         self.sort_by: StringVar = StringVar()
+        self.move_song: StringVar = StringVar()
         self.update: BooleanVar = BooleanVar()
         self.settings: dict = {}
         self.songs: list = []
@@ -87,7 +88,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.8.9'
+        self.VERSION: str = '0.9.0'
         # on load
         self.load_images()
         # error_frame
@@ -273,6 +274,18 @@ class Sounder:
         self.transition_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
         Label(transition_frame, text='18s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
         transition_frame.pack(side='top', fill='x', pady=(0, 10))
+        # move playing song to view
+        move_song_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(move_song_frame, image=self.arrow_icon, text=' MOVE PLAYING SONG TO VIEW', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.move_song_label: ClassVar = Label(move_song_frame, text=f'{self.settings["move_song"]} MOVE PLAYING SONG TO VIEW', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        self.move_song_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
+        Radiobutton(move_song_frame, relief='flat', text='ALWAYS', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='ALWAYS', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(move_song_frame, relief='flat', text='NEVER', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='NEVER', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(move_song_frame, relief='flat', text='WHILE PLAYLIST IS NOT ACTIVE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='WHILE PLAYLIST IS NOT ACTIVE', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        move_song_frame.pack(side='top', fill='x', pady=(0, 10))
         # time precision
         time_precision_frame = Frame(self.settings_cards, background='#111')
         Label(time_precision_frame, image=self.time_icon, text=' TIME PRECISION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -409,8 +422,8 @@ class Sounder:
             self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
             self.alphabetic_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\alphabetic.png').resize((30, 30)))
             self.heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\heart.png').resize((30, 30)))
-            self.large_repeat_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat_one.png').resize((30, 30)))
             self.filled_heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filled_heart.png').resize((30, 30)))
+            self.arrow_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\arrow.png').resize((40, 40)))
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -485,7 +498,7 @@ class Sounder:
 
     def add_folder(self) -> None:
         new_directory: str = askdirectory()
-        if new_directory and not new_directory in self.settings['folders']:
+        if bool(new_directory) and not new_directory in self.settings['folders']:
             self.settings['folders'].append(new_directory)
             self.scan_for_songs()
             self.scan_for_folders()
@@ -530,7 +543,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': []}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'ALWAYS'}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -556,6 +569,8 @@ class Sounder:
             # update
             self.update.set(self.settings['update'])
             self.change_update()
+            # move song
+            self.move_song.set(self.settings['move_song'])
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
@@ -670,6 +685,11 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
             self.settings['favorites']: list = []
+        try:
+            self.settings['move_song']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['move_song']: str = 'ALWAYS'
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -866,8 +886,6 @@ class Sounder:
                 self.songs.sort(key=self.sort_by_letter)
             elif self.settings['sort_by'] == 'favorites':
                 self.songs.sort(key=self.sort_by_favorites)
-            elif self.settings['sort_by'] == 'most_played':
-                self.songs.sort(key=self.sort_by_most_played)
 
     def sort_by_letter(self, song: str) -> str:
         return splitext(basename(song))[0].split(' ')[0].lower()
@@ -876,10 +894,6 @@ class Sounder:
         if basename(song) in self.settings['favorites']:
             return 'A'
         return 'Z'
-    
-    def sort_by_most_played(self, song: str) -> str:
-        print('most_played')
-        return ''
 
     def get_playtime(self) -> None:
         play_time: float = 0.0
@@ -1013,7 +1027,13 @@ class Sounder:
     def play_song(self) -> None:
         try:
             if bool(self.song) and bool(self.playlist) or bool(self.songs):
-                SELECTED: str = self.selected.get()
+                if self.settings['move_song'] == 'ALWAYS':
+                    self.move_to_view()
+                elif self.settings['move_song'] != 'NEVER':
+                    SELECTED: str = self.selected.get()
+                    if SELECTED != 'playlist':
+                        self.move_to_view()
+                    del SELECTED
                 mixer.music.load(self.song)
                 mixer.music.play()
                 self.paused = False
@@ -1023,9 +1043,6 @@ class Sounder:
                 self.update_favorite_button()
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
-                if SELECTED != 'playlist':
-                    self.move_to_view()
-                del SELECTED
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -1144,7 +1161,7 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': []}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'ALWAYS'}
         self.close()
     
     def change_startup(self) -> None:
@@ -1225,10 +1242,8 @@ class Sounder:
             self.sort_menu.resizable(False, False)
             self.sort_menu.protocol('WM_DELETE_WINDOW', self.sort_menu.withdraw)
             self.sort_menu.focus_force()
-            self.sort_menu.bind('<FocusOut>', lambda _: self.sort_menu.withdraw())
             Radiobutton(self.sort_menu, relief='flat', image=self.alphabetic_icon, text=' NAME', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='name', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
             Radiobutton(self.sort_menu, relief='flat', image=self.filled_heart_icon, text=' FAVORITES', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='favorites', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
-            Radiobutton(self.sort_menu, relief='flat', image=self.large_repeat_icon, text=' MOST PLAYED', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='most_played', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
             self.sort_menu.mainloop()
 
     def open_sort_menu(self) -> None:
@@ -1236,7 +1251,7 @@ class Sounder:
             if self.sort_menu.winfo_ismapped():
                 self.sort_menu.withdraw()
             else:
-                self.sort_menu.geometry(f'300x160+{int(self.main_window.winfo_x() + ((self.main_window.winfo_width() - 300) / 2))}+{int(self.main_window.winfo_y() + ((self.main_window.winfo_height() - 160) / 2))}')
+                self.sort_menu.geometry(f'300x120+{int(self.main_window.winfo_x() + ((self.main_window.winfo_width() - 300) / 2))}+{int(self.main_window.winfo_y() + ((self.main_window.winfo_height() - 120) / 2))}')
                 self.sort_menu.deiconify()
                 
     def change_sort(self) -> None:
@@ -1253,7 +1268,19 @@ class Sounder:
         else:
             self.settings['favorites'].append(basename(self.song))
         self.update_favorite_button()
+        self.change_sort()
 
+    def change_move_song(self) -> None:
+        value: str = self.move_song.get()
+        self.settings['move_song'] = value
+        if value == 'ALWAYS':
+            self.move_song_label['text'] = 'ALWAYS MOVE PLAYING SONG TO VIEW'
+        elif value == 'NEVER':
+            self.move_song_label['text'] = 'NEVER MOVE PLAYING SONG TO VIEW'
+        else:
+            self.move_song_label['text'] = 'WHILE PLAYLIST IS NOT ACTIVE MOVE PLAYING SONG TO VIEW'
+        del value
+    
 if __name__ == '__main__':
         Sounder()
 
