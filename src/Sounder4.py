@@ -4,12 +4,12 @@ from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
 from os import getcwd, listdir, startfile, remove as rmfile
-from os.path import basename, isfile, isdir, splitext, abspath, join
+from os.path import basename, isfile, isdir, splitext, abspath, join, getsize
 from PIL import Image, ImageTk
 from json import dump, load
 from mutagen.mp3 import MP3
 from io import BytesIO
-from random import shuffle
+from random import shuffle, randint
 from datetime import timedelta
 from re import findall
 from pygame import mixer
@@ -88,7 +88,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.1'
+        self.VERSION: str = '0.9.2'
         # on load
         self.load_images()
         # error_frame
@@ -521,6 +521,8 @@ class Sounder:
                 self.settings['folders'].remove(folder)
         if not bool(self.settings['folders']):
             self.info_card(f'ADD A FOLDER TO START LISTENING', self.folder_cards)
+            if randint(0, 2) > 0:
+                self.easter_egg()
 
     def open_logs(self) -> None:
         if getLogger().isEnabledFor(ERROR):
@@ -569,6 +571,7 @@ class Sounder:
             self.change_update()
             # move song
             self.move_song.set(self.settings['move_song'])
+            self.change_move_song()
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
@@ -820,6 +823,7 @@ class Sounder:
             self.next_button.state(['disabled'])
             self.repeat_button.state(['disabled'])
             self.sort_button.state(['disabled'])
+            self.favorites_button.state(['disabled'])
         else:
             self.playlist_play.state(['!disabled'])
             self.shuffle_button.state(['!disabled'])
@@ -828,6 +832,7 @@ class Sounder:
             self.next_button.state(['!disabled'])
             self.repeat_button.state(['!disabled'])
             self.sort_button.state(['!disabled'])
+            self.favorites_button.state(['!disabled'])
 
     def update_buttons(self) -> None:
         # shuffle
@@ -1112,6 +1117,7 @@ class Sounder:
             else:
                 self.song_name['text'] = 'Unknown'
                 self.song_artist['text'] = 'Unknown'
+                self.album_name['text'] = 'Unknown'
                 self.song_length['text'] = '--:--'
                 self.progress_bar['maximum'] = 99999999
                 self.progress_bar['value'] = 0
@@ -1275,7 +1281,15 @@ class Sounder:
         elif value == 'WHILE':
             self.move_song_label['text'] = 'WHILE PLAYLIST IS NOT ACTIVE MOVE PLAYING SONG TO VIEW'
         del value
-    
+
+    def easter_egg(self) -> None:
+        if isfile('icons\\xx.png') and not bool(self.songs) and 1082913 == getsize('icons\\xx.png'):
+            self.mrt: ClassVar = ImageTk.PhotoImage(Image.open('icons\\xx.png').resize((220, 220)))
+            self.cover_art.configure(image=self.mrt)
+            self.song_name['text'] = 'To all of the queens who are fighting alone!'
+            self.song_artist['text'] = "Stay strong, keep fighting!"
+            self.album_name['text'] = 'HI :D'
+
 if __name__ == '__main__':
         Sounder()
 
