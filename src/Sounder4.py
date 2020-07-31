@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text, messagebox
+from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text, messagebox, Spinbox
 from tkinter.filedialog import askdirectory
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
@@ -28,7 +28,6 @@ class Sounder:
         self.main_window.withdraw()
         # configure window 
         self.main_window.minsize(822, 555)
-        self.main_window.iconbitmap('icons\\icon.ico')
         self.main_window.title('SOUNDER')
         self.main_window.configure(background='#212121')
         # app style
@@ -52,7 +51,7 @@ class Sounder:
         self.main_theme.configure("Horizontal.TProgressbar", foreground='#000', background='#212121', lightcolor='#111', darkcolor='#111', bordercolor='#111', troughcolor='#111')
         self.main_theme.map('Horizontal.TScale', background=[('pressed', '!disabled', '#333'), ('active', '#333')])
         # self.main_theme.configure('Horizontal.TScale', troughcolor='#151515', background='#333', relief="flat", gripcount=0, darkcolor="#151515", lightcolor="#151515", bordercolor='#151515')
-        self.main_theme.configure('Horizontal.TScale', troughcolor='#111', background='#212121', relief="flat", gripcount=0, darkcolor="#111", lightcolor="#111", bordercolor="#111")
+        self.main_theme.configure('Horizontal.TScale', troughcolor='#111', background='#212121', relief='flat', gripcount=0, darkcolor='#111', lightcolor='#111', bordercolor='#111')
         # end
         # frames
         self.error_frame: ClassVar = Frame(self.main_window, background='#212121')
@@ -81,6 +80,7 @@ class Sounder:
         self.sort_by: StringVar = StringVar()
         self.move_song: StringVar = StringVar()
         self.update: BooleanVar = BooleanVar()
+        self.icons_folder: StringVar = StringVar()
         self.settings: dict = {}
         self.songs: list = []
         self.playlist: list = []
@@ -88,8 +88,11 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.2'
+        self.VERSION: str = '0.9.3'
         # on load
+        # load settings
+        self.load_settings()
+        # load icons
         self.load_images()
         # error_frame
         Label(self.error_frame, image=self.warning_icon, text='Something went wrong', compound='top', font=('corbel', 35), background='#212121', foreground='#fff', anchor='center', justify='center').place(relx=0.5, rely=0.35, anchor='center', height=250)
@@ -98,8 +101,6 @@ class Sounder:
         ttk.Button(self.error_frame, image=self.logs_icon, text=' Open logs', compound='left', style='error.TButton', takefocus=False, command=self.open_logs).place(relx=0.3, rely=0.96, anchor='s')
         self.error_reason.place(relx=0.5, rely=0.64, anchor='s')
         # end
-        # load settings
-        self.load_settings()
         # init player
         self.init_mixer()
         # select frame
@@ -212,9 +213,9 @@ class Sounder:
         # playlist
         self.playlist_top_frame: ClassVar = Frame(self.playlist_frame, background='#212121')
         # validate entry
-        validator = (self.main_window.register(self.validate_entry), '%S', '%i')
+        search_box_validator = (self.main_window.register(self.validate_search_entry), '%S', '%i')
         # entry
-        self.search_box: ClassVar = Entry(self.playlist_top_frame, validate="key", validatecommand=validator, exportselection=0, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#111', foreground='#fff', font=('Consolas', 16))
+        self.search_box: ClassVar = Entry(self.playlist_top_frame, validate="key", validatecommand=search_box_validator, exportselection=False, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#111', foreground='#fff', font=('Consolas', 16))
         self.search_box.place(x=10, rely=0.5, height=35, width=230, anchor='w')
         # search button
         ttk.Button(self.playlist_top_frame, image=self.search_icon, style='folder.TButton', takefocus=False, command=self.search_song).place(x=240, rely=0.5, anchor='w', height=35, width=35)
@@ -264,6 +265,24 @@ class Sounder:
         # frame for items
         self.settings_cards: ClassVar = Frame(self.settings_canvas, background='#212121')
         # settings content
+        # file size
+        file_size_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(file_size_frame, image=self.audio_file_icon, text=' MUSIC FILE SIZE', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        min_size_frame: ClassVar = Frame(file_size_frame, background='#111')
+        Label(min_size_frame, text='MIN FILE SIZE:', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        size_box_validator = (self.main_window.register(self.validate_size_entry), '%S', '%i')
+        self.min_size_entry: ClassVar = Entry(min_size_frame, validate="key", validatecommand=size_box_validator, exportselection=False, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#212121', foreground='#fff', font=('Consolas', 12), width=8, justify='center')
+        self.min_size_entry.pack(side='left', anchor='w')
+        Label(min_size_frame, text='MB', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        min_size_frame.pack(side='top', fill='x', expand=True)
+        max_size_frame: ClassVar = Frame(file_size_frame, background='#111')
+        Label(max_size_frame, text='MAX FILE SIZE:', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        size_box_validator = (self.main_window.register(self.validate_size_entry), '%S', '%i')
+        self.max_size_entry: ClassVar = Entry(max_size_frame, validate="key", validatecommand=size_box_validator, exportselection=False, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#212121', foreground='#fff', font=('Consolas', 12), width=8, justify='center')
+        self.max_size_entry.pack(side='left', anchor='w')
+        Label(max_size_frame, text='MB', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        max_size_frame.pack(side='top', fill='x', expand=True)
+        file_size_frame.pack(side='top', fill='x', pady=(0, 10))
         # transition
         transition_frame = Frame(self.settings_cards, background='#111')
         Label(transition_frame, image=self.transition_icon, text=' TRANSITION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -314,7 +333,7 @@ class Sounder:
         self.acceleration_label: ClassVar = Label(scroll_frame, text=f'VALUE: {self.settings["wheel_acceleration"]}X', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
         self.acceleration_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
         Label(scroll_frame, text='SLOW', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
-        self.acceleration_scale: ClassVar = ttk.Scale(scroll_frame, orient='horizontal', from_=1, to=5, length=5, command=self.change_acceleration)
+        self.acceleration_scale: ClassVar = ttk.Scale(scroll_frame, orient='horizontal', from_=1, to=8, length=8, command=self.change_acceleration)
         self.acceleration_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
         Label(scroll_frame, text='FAST', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
         scroll_frame.pack(side='top', fill='x', pady=(0, 10))
@@ -328,6 +347,15 @@ class Sounder:
         Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=False, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         update_frame.pack(side='top', fill='x', pady=(0, 10))
+        # icons
+        icons_frame: ClassVar = Frame(self.settings_cards, background='#111')
+        Label(icons_frame, image=self.question_mark_icon, text=' ICONS', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(icons_frame, text='Note: Restart needed to apply changes', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(icons_frame, relief='flat', text='USE DEFAULT', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(icons_frame, relief='flat', text='USE FLUENT', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='fluent_icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        icons_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
         Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
@@ -353,7 +381,9 @@ class Sounder:
         # end
         # main window stuff
         self.main_window.bind('<MouseWheel>', self.on_mouse)
-        self.search_box.bind('<Return>', self.search_song)
+        self.search_box.bind('<KeyRelease>', self.search_song)
+        self.min_size_entry.bind('<KeyRelease>', self.change_file_size)
+        self.max_size_entry.bind('<KeyRelease>', self.change_file_size)
         # change how the closing of the program works
         self.main_window.protocol('WM_DELETE_WINDOW', self.close)
         # apply settings
@@ -378,50 +408,53 @@ class Sounder:
 
     def load_images(self) -> None:
         try:
-            self.music_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\music.png').resize((35, 35)))
-            self.cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\cover_art.png').resize((220, 220)))
-            self.playlist_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\playlist.png').resize((35, 35)))
-            self.settings_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\settings.png').resize((35, 35)))
-            self.folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\folder.png').resize((40, 40)))
-            self.music_folder_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\music_folder.png').resize((35, 35)))
-            self.play_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((30, 30)))
-            self.pause_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\pause.png').resize((30, 30)))
-            self.next_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\next.png').resize((30, 30)))
-            self.previous_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\previous.png').resize((30, 30)))
-            self.plus_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\plus.png').resize((20, 20)))
-            self.refresh_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\refresh.png').resize((20, 20)))
-            self.search_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\search.png').resize((20, 20)))
-            self.close_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\close.png').resize((30, 30)))
-            self.record_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\record.png').resize((40, 40)))
-            self.note_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\record.png').resize((20, 20)))
-            self.play_playlist: ClassVar = ImageTk.PhotoImage(Image.open('icons\\play.png').resize((20, 20)))
-            self.shuffle_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\shuffle.png').resize((25, 25)))
-            self.clock_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\clock.png').resize((20, 20)))
-            self.repeat_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat.png').resize((25, 25)))
-            self.repeat_one_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\repeat_one.png').resize((25, 25)))
-            self.warning_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\warning.png').resize((85, 85)))
-            self.bug_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\bug.png').resize((35, 35)))
-            self.logs_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\logs.png').resize((35, 35)))
-            self.no_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\no_audio.png').resize((25, 25)))
-            self.audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\audio.png').resize((25, 25)))
-            self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\low_audio.png').resize((25, 25)))
-            self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\med_audio.png').resize((25, 25)))
-            self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\save.png').resize((20, 20)))
-            self.logo_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\logo.png').resize((40, 40)))
-            self.slider_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\slider.png').resize((40, 40)))
-            self.restore_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\restore.png').resize((40, 40)))
-            self.power_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\power.png').resize((40, 40)))
-            self.time_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\time.png').resize((40, 40)))
-            self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\transition.png').resize((40, 40)))
-            self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((20, 20)))
-            self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\update.png').resize((40, 40)))
-            self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\menu.png').resize((30, 30)))
-            self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\trash.png').resize((20, 20)))
-            self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filter.png').resize((20, 20)))
-            self.alphabetic_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\alphabetic.png').resize((30, 30)))
-            self.heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\heart.png').resize((30, 30)))
-            self.filled_heart_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\filled_heart.png').resize((30, 30)))
-            self.arrow_icon: ClassVar = ImageTk.PhotoImage(Image.open('icons\\arrow.png').resize((40, 40)))
+            self.main_window.iconbitmap(f'{self.settings["icons_folder"]}\\icon.ico')
+            self.music_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\music.png').resize((35, 35)))
+            self.cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\cover_art.png').resize((220, 220)))
+            self.playlist_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\playlist.png').resize((35, 35)))
+            self.settings_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\settings.png').resize((35, 35)))
+            self.folder_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\folder.png').resize((40, 40)))
+            self.music_folder_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\music_folder.png').resize((35, 35)))
+            self.play_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\play.png').resize((30, 30)))
+            self.pause_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\pause.png').resize((30, 30)))
+            self.next_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\next.png').resize((30, 30)))
+            self.previous_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\previous.png').resize((30, 30)))
+            self.plus_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\plus.png').resize((20, 20)))
+            self.refresh_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\refresh.png').resize((20, 20)))
+            self.search_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\search.png').resize((20, 20)))
+            self.close_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\close.png').resize((30, 30)))
+            self.record_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\record.png').resize((40, 40)))
+            self.note_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\record.png').resize((20, 20)))
+            self.play_playlist: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\play.png').resize((20, 20)))
+            self.shuffle_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\shuffle.png').resize((25, 25)))
+            self.clock_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\clock.png').resize((20, 20)))
+            self.repeat_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\repeat.png').resize((25, 25)))
+            self.repeat_one_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\repeat_one.png').resize((25, 25)))
+            self.warning_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\warning.png').resize((85, 85)))
+            self.bug_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\bug.png').resize((35, 35)))
+            self.logs_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\logs.png').resize((35, 35)))
+            self.no_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\no_audio.png').resize((25, 25)))
+            self.audio_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\audio.png').resize((25, 25)))
+            self.low_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\low_audio.png').resize((25, 25)))
+            self.med_audio_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\med_audio.png').resize((25, 25)))
+            self.save_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\save.png').resize((20, 20)))
+            self.logo_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\logo.png').resize((40, 40)))
+            self.slider_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\slider.png').resize((40, 40)))
+            self.restore_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\restore.png').resize((40, 40)))
+            self.power_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\power.png').resize((40, 40)))
+            self.time_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\time.png').resize((40, 40)))
+            self.transition_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\transition.png').resize((40, 40)))
+            self.audio_file_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\audio_file.png').resize((40, 40)))
+            self.update_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\update.png').resize((20, 20)))
+            self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\update.png').resize((40, 40)))
+            self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\menu.png').resize((30, 30)))
+            self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\trash.png').resize((20, 20)))
+            self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\filter.png').resize((20, 20)))
+            self.sort_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\sort.png').resize((30, 30)))
+            self.heart_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\heart.png').resize((30, 30)))
+            self.filled_heart_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\filled_heart.png').resize((30, 30)))
+            self.arrow_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\arrow.png').resize((40, 40)))
+            self.question_mark_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\question_mark.png').resize((40, 40)))
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -440,7 +473,7 @@ class Sounder:
             Label(music_frame, image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
             Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
             Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
-            # Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
+            Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
             self.songs_metadata[song][1]: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
             self.songs_metadata[song][1].place(relx=1, rely=1, relheight=1, anchor='se')
             music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
@@ -480,7 +513,7 @@ class Sounder:
         folder_frame: ClassVar = Frame(self.folder_cards, background='#111')
         Label(folder_frame, image=self.folder_icon, background='#333', foreground='#fff', font=('Consolas', 16)).place(x=0, y=0, width=50, relheight=1)
         Label(folder_frame, text=f'{basename(path)}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
-        Label(folder_frame, text=f'{path}', background='#111', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
+        Label(folder_frame, text=f'{path}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
         ttk.Button(folder_frame, image=self.close_icon, style='folder.TButton', takefocus=False,command=lambda: self.remove_folder(folder_frame, path)).place(relx=1, rely=1, relheight=1, anchor='se')
         folder_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
 
@@ -543,7 +576,7 @@ class Sounder:
                     self.settings = load(file)
                     self.settings_correction()
             else:
-                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE'}
+                self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE', 'icons_folder': 'icons', 'min_file_size': 0, 'max_file_size': 512}
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -572,6 +605,13 @@ class Sounder:
             # move song
             self.move_song.set(self.settings['move_song'])
             self.change_move_song()
+            # icons
+            self.icons_folder.set(self.settings['icons_folder'])
+            self.change_icons()
+            # file size
+            
+            self.min_size_entry.insert(0, self.settings['min_file_size'])
+            self.max_size_entry.insert(0, self.settings['max_file_size'])
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
@@ -608,9 +648,10 @@ class Sounder:
             if not self.settings['last_card'] in frames:
                 self.settings['last_card']: str = 'playback'
         try:
-            self.settings['folders']: list = list(set(self.settings['folders']))
+            self.settings['folders']
         except Exception as err_obj:
             self.dump_err(err_obj, False)
+            self.settings['folders']: list = []
         try:
             self.settings['shuffle']
         except Exception as err_obj:
@@ -691,6 +732,21 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
             self.settings['move_song']: str = 'ALWAYS'
+        try:
+            self.settings['icons_folder']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['icons_folder']: str = 'icons'
+        try:
+            self.settings['min_file_size']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['min_file_size']: int = 0
+        try:
+            self.settings['max_file_size']
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
+            self.settings['max_file_size']: int = 512
         del frames
 
     def get_all_widgets(self, widget) -> list:
@@ -721,19 +777,22 @@ class Sounder:
         self.main_window.destroy()
 
     def scan_for_songs(self) -> None:
-        supported_extensions: list = ['.mp3']
+        supported_extensions: tuple = ('.mp3')
         self.songs = []
+        min_size: int = self.settings['min_file_size'] * 1000000
+        max_size: int = self.settings['max_file_size'] * 1000000
         try:
             for folder in self.settings['folders']:
                 for file in listdir(folder):
-                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist']:
+                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist'] and min_size < getsize(abspath(join(folder, file))) < max_size:
                         self.songs.append(abspath(join(folder, file)))
-            del supported_extensions
+            del supported_extensions, min_size, max_size
             self.playlist = self.songs
             self.active_card = []
             self.sort_songs()
             self.get_metadata()
             self.add_songs()
+            self.refresh_songs()
             self.update_lenght()
             self.update_num_of_songs()
             self.update_state()
@@ -756,13 +815,13 @@ class Sounder:
         if not bool(self.songs):
             self.info_card(f'WE ARE UNABLE TO FIND ANY SONG', self.playlist_cards)
 
-    def validate_entry(self, char: str, length: int) -> bool:
+    def validate_search_entry(self, char: str, _) -> bool:
         try:
-            disallowed_chars: list = [37, 40, 41, 42, 43, 47, 61, 63, 91, 92, 94, 124]
+            disallowed_chars: tuple = ('}', '{', ']', '[', '+', '=', '|', '\'', ':', ';', '/', '?', '>', '<', '%', '(', ')', '*', '^')
             if not bool(char) or len(char) > 1:
                 del disallowed_chars
                 return True
-            if ord(char) in disallowed_chars:
+            if char in disallowed_chars:
                 self.main_window.bell()
                 del disallowed_chars
                 return False
@@ -770,6 +829,11 @@ class Sounder:
             return True
         except Exception as err_obj:
             self.dump_err(err_obj, True)
+
+    def validate_size_entry(self, char: str, _) -> bool:
+        if char.isdigit():
+            return True
+        return False
 
     def search_song(self, event=None) -> None:
         word: str = str(self.search_box.get())
@@ -1162,7 +1226,7 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE'}
+        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE', 'icons_folder': 'icons', 'min_file_size': 0, 'max_file_size': 512}
         self.close()
     
     def change_startup(self) -> None:
@@ -1239,11 +1303,11 @@ class Sounder:
             self.sort_menu.withdraw()
             self.sort_menu.configure(background='#111')
             self.sort_menu.title('SORT BY')
-            self.sort_menu.iconbitmap('icons\\filter.ico')
+            self.sort_menu.iconbitmap(f'{self.settings["icons_folder"]}\\filter.ico')
             self.sort_menu.resizable(False, False)
             self.sort_menu.protocol('WM_DELETE_WINDOW', self.sort_menu.withdraw)
             self.sort_menu.focus_force()
-            Radiobutton(self.sort_menu, relief='flat', image=self.alphabetic_icon, text=' NAME', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='name', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
+            Radiobutton(self.sort_menu, relief='flat', image=self.sort_icon, text=' NAME', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='name', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
             Radiobutton(self.sort_menu, relief='flat', image=self.filled_heart_icon, text=' FAVORITES', font=('Consolas', 14), compound='left', indicatoron=False, bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False, highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.sort_by, value='favorites', command=self.change_sort, anchor='w').pack(fill='x', padx=10, pady=(10, 0), ipady=2)
             self.sort_menu.mainloop()
 
@@ -1289,6 +1353,21 @@ class Sounder:
             self.song_name['text'] = 'To all of the queens who are fighting alone!'
             self.song_artist['text'] = "Stay strong, keep fighting!"
             self.album_name['text'] = 'HI :D'
+
+    def change_icons(self) -> None:
+        self.settings['icons_folder'] = self.icons_folder.get()
+
+    def change_file_size(self, _) -> None:
+        try:
+            min_size: str = self.min_size_entry.get()
+            max_size: str = self.max_size_entry.get()
+            if bool(min_size):
+                self.settings['min_file_size'] = int(min_size)
+            if bool(max_size):
+                self.settings['max_file_size'] = int(max_size)
+            del min_size, max_size
+        except Exception as err_obj:
+            self.dump_err(err_obj, False)
 
 if __name__ == '__main__':
         Sounder()
