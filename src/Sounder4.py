@@ -88,7 +88,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.3'
+        self.VERSION: str = '0.9.4'
         # on load
         # load settings
         self.load_settings()
@@ -609,9 +609,10 @@ class Sounder:
             self.icons_folder.set(self.settings['icons_folder'])
             self.change_icons()
             # file size
-            
             self.min_size_entry.insert(0, self.settings['min_file_size'])
             self.max_size_entry.insert(0, self.settings['max_file_size'])
+            # sort
+            self.sort_by.set(self.settings['sort_by'])
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
@@ -625,8 +626,6 @@ class Sounder:
                 if bool(self.playlist):
                     self.song = self.playlist[0]
                     self.action_play()
-            # sort
-            self.sort_by.set(self.settings['sort_by'])
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -792,7 +791,6 @@ class Sounder:
             self.sort_songs()
             self.get_metadata()
             self.add_songs()
-            self.refresh_songs()
             self.update_lenght()
             self.update_num_of_songs()
             self.update_state()
@@ -1094,13 +1092,6 @@ class Sounder:
     def play_song(self) -> None:
         try:
             if bool(self.song) and bool(self.playlist) or bool(self.songs):
-                if self.settings['move_song'] == 'ALWAYS':
-                    self.move_to_view()
-                elif self.settings['move_song'] == 'WHILE':
-                    SELECTED: str = self.selected.get()
-                    if SELECTED != 'playlist':
-                        self.move_to_view()
-                    del SELECTED
                 mixer.music.load(self.song)
                 mixer.music.play()
                 self.paused = False
@@ -1110,6 +1101,13 @@ class Sounder:
                 self.update_favorite_button()
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
+                if self.settings['move_song'] == 'ALWAYS':
+                    self.move_to_view()
+                elif self.settings['move_song'] == 'WHILE':
+                    SELECTED: str = self.selected.get()
+                    if SELECTED != 'playlist':
+                        self.move_to_view()
+                    del SELECTED
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
