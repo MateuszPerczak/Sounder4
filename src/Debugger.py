@@ -14,6 +14,8 @@ class Debugger:
         self.main_theme.theme_use('clam')
         self.main_theme.configure('debugger.TButton', background='#111', relief='flat', font=('corbel', 12), foreground='#fff')
         self.main_theme.map('debugger.TButton', background=[('pressed', '!disabled', '#111'), ('active', '#151515')])
+        self.main_theme.configure('debugger.Vertical.TScrollbar', gripcount=0, relief='flat', background='#212121', darkcolor='#212121', lightcolor='#212121', troughcolor='#212121', bordercolor='#212121', arrowcolor='#212121')
+        self.main_theme.map('debugger.Vertical.TScrollbar', background=[('pressed', '!disabled', '#333'), ('disabled', '#212121'), ('active', '#111'), ('!active', '#111')])
         # window attributes
         self.main_window.attributes("-topmost", True)
         self.main_window.title(f'DEBUGGER - {self.parent.title()}')
@@ -54,16 +56,16 @@ class Debugger:
         self.highlight_button: ClassVar = ttk.Button(children_buttons_frame, text='HIGHLIGHT ALL', takefocus=False, style='debugger.TButton', command=self.highlight_childrens)
         # disable button
         self.highlight_button.state(['disabled'])
-        self.highlight_button.pack(side='left', padx=10)
+        self.highlight_button.pack(side='left')
         # unhighlight button
-        self.unhighlight_button: ClassVar = ttk.Button(children_buttons_frame, text='UNHIGHLIGHT ELEMENTS', takefocus=False, style='debugger.TButton', command=self.unhighlight_elements)
+        self.unhighlight_button: ClassVar = ttk.Button(children_buttons_frame, text='UNHIGHLIGHT ELEMENTS', takefocus=False, style='debugger.TButton', command=self.unhighlight_childrens)
         self.unhighlight_button.state(['disabled'])
         self.unhighlight_button.pack(side='left', padx=10)
-        children_buttons_frame.pack(side='top', fill='x', padx=(0, 10))
+        children_buttons_frame.pack(side='top', fill='x', padx=10)
         # children frame
         children_frame: ClassVar = Frame(self.main_window, background='#212121')
         # scrollbar
-        children_scrollbar: ClassVar = ttk.Scrollbar(children_frame)
+        children_scrollbar: ClassVar = ttk.Scrollbar(children_frame, style='debugger.Vertical.TScrollbar')
         # canvas
         self.children_canvas: ClassVar = Canvas(children_frame, borderwidth=0, highlightthickness=0, background='#212121', yscrollcommand=children_scrollbar.set)
         # bind scrollbar to canvas
@@ -77,10 +79,11 @@ class Debugger:
         # pack
         children_scrollbar.pack(side='right', fill='y', pady=10)
         self.children_canvas.pack(side='left', fill='both', expand=True, padx=10, pady=10)
-        children_frame.pack(side='top', fill='both', expand=True, padx=5, pady=(0, 10))
+        children_frame.pack(side='top', fill='both', expand=True, padx=10, pady=(0, 10))
         # show window
         self.main_window.deiconify()
         self.main_window.bind('<MouseWheel>', self.on_mouse)
+        Debug(self.main_window)
         self.main_window.mainloop()
 
     def inspect_element(self) -> None:
@@ -132,12 +135,17 @@ class Debugger:
         Label(card_frame, text=f'{widget.winfo_class()} ({widget.winfo_name()})', background='#333', foreground='#fff', font=('Consolas', 12), ).pack(side='left', anchor='center', fill='y')
         Label(card_frame, text=f'DIMENTIONS: {widget.winfo_width()}W {widget.winfo_height()}H', background='#111', foreground='#fff', font=('Consolas', 12)).pack(side='left', anchor='center', padx=(10, 0))
         Label(card_frame, text=f'POSITION: {widget.winfo_x()}X {widget.winfo_y()}Y', background='#111', foreground='#fff', font=('Consolas', 12)).pack(side='left', anchor='center', padx=(10, 0))
-        ttk.Button(card_frame, text='HIGHLIGHT ELEMENT', takefocus=False, style='debugger.TButton', command=lambda: self.highlight_element(widget, '#2e7d32')).pack(side='right', anchor='center', padx=10)
+        if 'background' in widget.config():
+            ttk.Button(card_frame, text='HIGHLIGHT ELEMENT', takefocus=False, style='debugger.TButton', command=lambda: self.highlight_element(widget, '#2e7d32')).pack(side='right', anchor='center', padx=10)
         card_frame.pack(side='top', fill='x', pady=(0, 10), ipady=5)
 
     def highlight_childrens(self) -> None:
         for widget in self.widget.winfo_children():
             self.highlight_element(widget, '#2e7d32')
+
+    def unhighlight_childrens(self) -> None:
+        self.unhighlight_elements()
+        self.highlight_element(self.widget, '#1565c0')
 
     def edit_widget_attributes(self, _) -> None:
         if self.widget.winfo_class() == 'Label':
@@ -164,6 +172,8 @@ class Debugger:
                 self.highlighted_widgets.append((widget_to_highlight, widget_to_highlight['background']))
                 widget_to_highlight['background'] = color
                 self.unhighlight_button.state(['!disabled'])
+                if widget_to_highlight == self.widget._nametowidget(self.widget.winfo_parent()):
+                    self.highlight_parent.state(['disabled'])
         del already_highlighted, widget_to_highlight, color
 
     def unhighlight_elements(self) -> None:
@@ -172,6 +182,7 @@ class Debugger:
                 widget[0]['background'] = widget[1]
                 self.highlighted_widgets.remove(widget)
         self.unhighlight_button.state(['disabled'])
+        self.highlight_parent.state(['!disabled'])
 
     def get_all_widgets(self, widget) -> list:
         widget_list = widget.winfo_children()
@@ -190,3 +201,5 @@ class Debugger:
         self.main_window.destroy()
         del self
 
+lol = Tk()
+Debugger(lol)
