@@ -1,1 +1,1 @@
-{}
+{"folders": ["C:/Users/Mateusz/Music"], "last_card": "folder", "shuffle": false, "repeat": "all", "wheel_acceleration": 3.0, "width": 822, "height": 555, "volume": 0.41, "song": "", "on_startup": "DO NOTHING", "transition": 1, "time_precision": "PRECISE", "update": false, "blacklist": [], "sort_by": "favorites", "favorites": ["when the party's over.mp3", "ocean eyes.mp3", "Gimme Love.mp3"], "move_song": "WHILE", "icons_folder": "icons", "min_file_size": 0, "max_file_size": 20, "debug": true}

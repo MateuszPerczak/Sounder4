@@ -17,6 +17,7 @@ from threading import Thread, active_count
 from time import sleep
 from webbrowser import open as open_browser
 from requests import get
+from Debugger import Debugger
 
 class Sounder:
     def __init__(self):
@@ -88,7 +89,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.4'
+        self.VERSION: str = '0.9.5'
         # on load
         # load settings
         self.load_settings()
@@ -118,9 +119,6 @@ class Sounder:
         # album label
         self.album_name: ClassVar = Label(top_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background='#212121', foreground='#fff', anchor='center', justify='center')  
         self.album_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
-        # song options
-        self.song_option: ClassVar = ttk.Button(top_frame, text='...')
-        # self.song_option.pack(side='left', anchor='n', fill='x', padx=10, pady=(10, 0), expand=True)
         # cover label
         self.cover_art: ClassVar = Label(top_frame, image=self.cover_art_icon, background='#212121')
         self.cover_art.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)   
@@ -554,6 +552,7 @@ class Sounder:
                 self.settings['folders'].remove(folder)
         if not bool(self.settings['folders']):
             self.info_card(f'ADD A FOLDER TO START LISTENING', self.folder_cards)
+            self.stop_all_playback()
             if randint(0, 2) > 0:
                 self.easter_egg()
 
@@ -626,6 +625,10 @@ class Sounder:
                 if bool(self.playlist):
                     self.song = self.playlist[0]
                     self.action_play()
+            # secret stuff
+            if 'debug' in self.settings:
+                if self.settings['debug']:
+                    self.main_window.bind('<F12>', lambda _: Debugger(self.main_window))
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -815,7 +818,7 @@ class Sounder:
 
     def validate_search_entry(self, char: str, _) -> bool:
         try:
-            disallowed_chars: tuple = ('}', '{', ']', '[', '+', '=', '|', '\'', ':', ';', '/', '?', '>', '<', '%', '(', ')', '*', '^')
+            disallowed_chars: tuple = ('}', '{', ']', '[', '+', '=', '|', '\\', ':', ';', '/', '?', '>', '<', '%', '(', ')', '*', '^')
             if not bool(char) or len(char) > 1:
                 del disallowed_chars
                 return True
@@ -1099,6 +1102,7 @@ class Sounder:
                 self.update_active_card()
                 self.update_play_button()
                 self.update_favorite_button()
+                print(active_count())
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
                 if self.settings['move_song'] == 'ALWAYS':
@@ -1124,6 +1128,14 @@ class Sounder:
             self.paused = False
             self.update_active_card()
             self.update_play_button()
+
+    def stop_all_playback(self) -> None:
+        if mixer.music.get_busy():
+            mixer.music.stop()
+        mixer.music.unload()
+        self.paused = False
+        self.update_play_button()
+        self.update_favorite_button()
 
     def play_thread(self) -> None:
         try:
@@ -1322,6 +1334,7 @@ class Sounder:
         if not self.settings['shuffle']:
             self.sort_songs()
             self.add_songs()
+            self.search_song()
             self.update_active_card()
             self.move_to_view()
 
@@ -1345,8 +1358,8 @@ class Sounder:
         del value
 
     def easter_egg(self) -> None:
-        if isfile('icons\\xx.png') and not bool(self.songs) and 1082913 == getsize('icons\\xx.png'):
-            self.mrt: ClassVar = ImageTk.PhotoImage(Image.open('icons\\xx.png').resize((220, 220)))
+        if isfile(f'{self.settings["icons_folder"]}\\xx.png') and not bool(self.songs):
+            self.mrt: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\xx.png').resize((220, 220)))
             self.cover_art.configure(image=self.mrt)
             self.song_name['text'] = 'To all of the queens who are fighting alone!'
             self.song_artist['text'] = "Stay strong, keep fighting!"
@@ -1366,6 +1379,7 @@ class Sounder:
             del min_size, max_size
         except Exception as err_obj:
             self.dump_err(err_obj, False)
+
 
 if __name__ == '__main__':
         Sounder()
