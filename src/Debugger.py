@@ -200,6 +200,3 @@ class Debugger:
         self.unhighlight_elements()
         self.main_window.destroy()
         del self
-
-lol = Tk()
-Debugger(lol)
