@@ -83,7 +83,6 @@ class Debugger:
         # show window
         self.main_window.deiconify()
         self.main_window.bind('<MouseWheel>', self.on_mouse)
-        Debug(self.main_window)
         self.main_window.mainloop()
 
     def inspect_element(self) -> None:
