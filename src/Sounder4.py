@@ -17,7 +17,7 @@ from threading import Thread, active_count
 from time import sleep
 from webbrowser import open as open_browser
 from requests import get
-from Debugger import Debugger
+from Debugger.Debugger import Debugger
 
 class Sounder:
     def __init__(self):
@@ -388,7 +388,6 @@ class Sounder:
         self.apply_settings()
         # show window
         self.main_window.after(150, lambda: self.main_window.deiconify())
-        # self.main_window.after(3000, lambda: print(self.settings_cards.winfo_height()))
         # init sort menu
         self.main_window.after(300, lambda: self.init_sort_menu())
         self.main_window.mainloop()
@@ -1102,7 +1101,6 @@ class Sounder:
                 self.update_active_card()
                 self.update_play_button()
                 self.update_favorite_button()
-                print(active_count())
                 if active_count() == 1:
                     Thread(target=self.play_thread, daemon=True).start()
                 if self.settings['move_song'] == 'ALWAYS':
