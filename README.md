@@ -37,8 +37,7 @@ docker run -v .:/app sounder
 ```sh
 cd src
 docker-compose up
-``
-
+```
 
 ## Authors
 Main programmer, designer: Mateusz Perczak
