@@ -24,6 +24,22 @@ Python music player
 + webbrowser
 + requests
 
+## Running application with docker
+
+```sh
+cd src
+docker build -t sounder .
+docker run -v .:/app sounder
+```
+
+## Running application with docker-compose
+
+```sh
+cd src
+docker-compose up
+``
+
+
 ## Authors
 Main programmer, designer: Mateusz Perczak
 

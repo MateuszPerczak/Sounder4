@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  sounder: 
+    container_name: sounder
+    build: .
+    networks:
+      - fullstack
+    volumes:
+      - .:/app
+
+networks:
+  fullstack:
+    driver: bridge
