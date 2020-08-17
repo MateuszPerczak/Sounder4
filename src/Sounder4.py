@@ -1,5 +1,6 @@
 from tkinter import Tk, Frame, Label, PhotoImage, Radiobutton, Button, StringVar, BooleanVar, Canvas, Scrollbar, ttk, Entry, Toplevel, Text, messagebox, Spinbox
 from tkinter.filedialog import askdirectory
+from tkinter.messagebox import askyesno
 from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
@@ -13,11 +14,11 @@ from random import shuffle, randint
 from datetime import timedelta
 from re import findall
 from pygame import mixer
-from threading import Thread, active_count
+from threading import Thread, active_count, enumerate as enum_threads
 from time import sleep
 from webbrowser import open as open_browser
 from requests import get
-from Debugger.Debugger import Debugger
+from Debugger import Debugger
 
 class Sounder:
     def __init__(self):
@@ -116,22 +117,29 @@ class Sounder:
         # end
         # playback frame
         top_frame: ClassVar = Frame(self.playback_frame, background='#212121')
+        # menu frame
+        self.menu_frame: ClassVar = Frame(top_frame, background=top_frame['background'], width=0)
+        self.button_frame: ClassVar = Frame(self.menu_frame, background='#111')
+        Label(self.button_frame, image=self.file_icon, text=' MANAGE SONG', background='#333', foreground='#fff', font=('Consolas', 14), compound='left').pack(side='top', fill='x', anchor='w', ipady=4, ipadx=2)
+        ttk.Button(self.button_frame, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='bottom', fill='x', anchor='w', padx=10, pady=10)
+        ttk.Button(self.button_frame, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='bottom', fill='x', anchor='w', padx=10, pady=(10, 0))
+        self.menu_frame.pack(side='left', fill='y', padx=(0, 10), pady=(10, 0))
         # album label
-        self.album_name: ClassVar = Label(top_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background='#212121', foreground='#fff', anchor='center', justify='center')  
+        self.album_name: ClassVar = Label(top_frame, text='ALBUM NAME', font=('Consolas', 15), compound='left', background=top_frame['background'], foreground='#fff', anchor='center', justify='center')  
         self.album_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
         # cover label
-        self.cover_art: ClassVar = Label(top_frame, image=self.cover_art_icon, background='#212121')
+        self.cover_art: ClassVar = Label(top_frame, image=self.cover_art_icon, background=top_frame['background'])
         self.cover_art.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)   
         # song label
-        self.song_name: ClassVar = Label(top_frame, text='SONG TITLE', font=('Consolas', 15), background='#212121', foreground='#fff', anchor='center', justify='center')
+        self.song_name: ClassVar = Label(top_frame, text='SONG TITLE', font=('Consolas', 15), background=top_frame['background'], foreground='#fff', anchor='center', justify='center')
         self.song_name.pack(side='top', anchor='center', fill='x', padx=10, pady=(10, 0), expand=True)
         # artist label   
-        self.song_artist: ClassVar = Label(top_frame, text='ARTIST NAME', font=('Consolas', 12), background='#212121', foreground='#fff', anchor='center', justify='center')
+        self.song_artist: ClassVar = Label(top_frame, text='ARTIST NAME', font=('Consolas', 12), background=top_frame['background'], foreground='#fff', anchor='center', justify='center')
         self.song_artist.pack(side='top', anchor='center', fill='x', padx=10, pady=(0, 10), expand=True)   
         # bottom frame
         bottom_frame: ClassVar = Frame(self.playback_frame, background='#111')
         # buttons frame
-        buttons_frame: ClassVar = Frame(bottom_frame, background='#111')
+        buttons_frame: ClassVar = Frame(bottom_frame, background=bottom_frame['background'])
         # play button
         self.play_button: ClassVar = ttk.Button(buttons_frame, image=self.play_icon, takefocus=False, command=self.action_play)
         self.play_button.place(relx=0.5, rely=0.5, anchor='center')
@@ -148,18 +156,18 @@ class Sounder:
         self.repeat_button: ClassVar = ttk.Button(buttons_frame, image=self.repeat_icon, takefocus=False, command=self.toggle_repeat)
         self.repeat_button.place(relx=0.9, rely=0.5, anchor='center')
         # scale frame
-        progress_frame: ClassVar = Frame(bottom_frame, background='#111')
+        progress_frame: ClassVar = Frame(bottom_frame, background=bottom_frame['background'])
         # time passed
-        self.time_passed: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
+        self.time_passed: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background=bottom_frame['background'], foreground='#fff', anchor='center', justify='center')
         self.time_passed.pack(side='left', ipadx=8)
         # progress bar
         self.progress_bar: ClassVar = ttk.Progressbar(progress_frame, orient="horizontal", mode="determinate")
         self.progress_bar.pack(side='left', fill='x', expand=True)
         # song length
-        self.song_length: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background='#111', foreground='#fff', anchor='center', justify='center')
+        self.song_length: ClassVar = Label(progress_frame, text='--:--', font=('Consolas', 9), compound='left', background=bottom_frame['background'], foreground='#fff', anchor='center', justify='center')
         self.song_length.pack(side='right', ipadx=8)
         # volume frame
-        volume_frame: ClassVar = Frame(bottom_frame, background='#111')
+        volume_frame: ClassVar = Frame(bottom_frame, background=bottom_frame['background'])
         # volume button
         self.mute_button: ClassVar = ttk.Button(volume_frame, image=self.no_audio_icon, takefocus=False, command=self.toggle_volume)
         self.mute_button.pack(side='left', anchor='center', padx=5)
@@ -167,14 +175,10 @@ class Sounder:
         self.volume_bar: ClassVar = ttk.Scale(volume_frame, orient='horizontal', from_=0, to=1, command=self.change_volume)
         self.volume_bar.pack(side='left', anchor='center', padx=5, fill='x', expand=True)
         # menu button
-        left_frame: ClassVar = Frame(bottom_frame, background='#111')
+        left_frame: ClassVar = Frame(bottom_frame, background=bottom_frame['background'])
         ttk.Button(left_frame, image=self.menu_icon, takefocus=False, command=self.open_music_menu).pack(side='left', anchor='center', padx=5)
         self.favorites_button: ClassVar = ttk.Button(left_frame, image=self.heart_icon, takefocus=False, command=self.add_favorites)
         self.favorites_button.pack(side='left', anchor='center', padx=5)
-        # menu frame
-        self.menu_frame: ClassVar = Frame(top_frame, background='#151515')
-        ttk.Button(self.menu_frame, image=self.trash_icon, text='REMOVE FROM PLAYLIST', style='menu.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(False)).pack(side='left', fill='x', padx=(10, 0), pady=10, expand=True)
-        ttk.Button(self.menu_frame, image=self.trash_icon, text='REMOVE FROM DISK', style='restore.TButton', compound='left', takefocus=False, command=lambda: self.manage_song(True)).pack(side='right', fill='x', padx=10, pady=10, expand=True)
         # place frames
         top_frame.pack(side='top', anchor='center', fill='both', expand=True)
         bottom_frame.pack(side='bottom', anchor='center', fill='x', ipady=45)
@@ -197,13 +201,13 @@ class Sounder:
         self.folder_canvas: ClassVar = Canvas(self.folder_frame, borderwidth=0, highlightthickness=0, background='#212121', yscrollcommand=self.folder_scrollbar.set)
         self.folder_scrollbar.configure(command=self.folder_canvas.yview)
         # frame for items
-        self.folder_cards: ClassVar = Frame(self.folder_canvas, background='#212121')
+        self.folder_cards: ClassVar = Frame(self.folder_canvas, background=self.folder_top_frame['background'])
         # add folders
         self.scan_for_folders()
         # update canvas
-        self.folder_cards.bind('<Configure>', lambda _: self.folder_canvas.configure(scrollregion=self.folder_canvas.bbox('all')))
+        self.folder_cards.bind('<Expose>', lambda _: self.folder_canvas.configure(scrollregion=self.folder_canvas.bbox('all')))
         self.folder_window: ClassVar = self.folder_canvas.create_window((0, 0), window=self.folder_cards, anchor='nw')
-        self.folder_canvas.bind('<Configure>', lambda _: self.folder_canvas.itemconfigure(self.folder_window, width=self.folder_canvas.winfo_width(), height=len(self.settings['folders']) * 71))
+        self.folder_canvas.bind('<Expose>', lambda _: self.folder_canvas.itemconfigure(self.folder_window, width=self.folder_canvas.winfo_width(), height=len(self.settings['folders']) * 71))
         # pack canvas
         self.folder_scrollbar.pack(side='right', fill='y', pady=(0, 10))
         self.folder_canvas.pack(side='left', fill='both',expand=True, padx=10, pady=(0, 10))
@@ -241,9 +245,9 @@ class Sounder:
         # scan for songs
         self.scan_for_songs()
         # update canvas
-        self.playlist_cards.bind('<Configure>', lambda _: self.playlist_canvas.configure(scrollregion=self.playlist_canvas.bbox('all')))
+        self.playlist_cards.bind('<Expose>', lambda _: self.playlist_canvas.configure(scrollregion=self.playlist_canvas.bbox('all')))
         self.playlist_window: ClassVar = self.playlist_canvas.create_window((0, 0), window=self.playlist_cards, anchor='nw')
-        self.playlist_canvas.bind('<Configure>', lambda _: self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71))
+        self.playlist_canvas.bind('<Expose>', lambda _: self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71))
         # pack widgets
         self.playlist_scrollbar.pack(side='right', fill='y', pady=(0, 10))
         self.playlist_canvas.pack(side='left', fill='both', expand=True, padx=10, pady=(0, 10))
@@ -252,126 +256,123 @@ class Sounder:
         self.settings_top_frame: ClassVar = Frame(self.settings_frame, background='#212121')
         # save settings 
         ttk.Button(self.settings_top_frame, image=self.save_icon, text='SAVE SETTINGS', style='folder.TButton', takefocus=False, compound='left', command=self.save_settings).place(x=10, rely=0.5, anchor='w', height=35)
-        # check for update
-        if bool(self.settings['update']):
-            self.main_window.after(1000, self.check_update)
         # settings scrollbar
         self.settings_scrollbar: ClassVar = ttk.Scrollbar(self.settings_frame)
         # settings canvas
         self.settings_canvas: ClassVar = Canvas(self.settings_frame, borderwidth=0, highlightthickness=0, background='#212121', yscrollcommand=self.settings_scrollbar.set)
         self.settings_scrollbar.configure(command=self.settings_canvas.yview)
         # frame for items
-        self.settings_cards: ClassVar = Frame(self.settings_canvas, background='#212121')
+        self.settings_cards: ClassVar = Frame(self.settings_canvas, background=self.settings_top_frame['background'])
         # settings content
         # file size
         file_size_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(file_size_frame, image=self.audio_file_icon, text=' MUSIC FILE SIZE', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        min_size_frame: ClassVar = Frame(file_size_frame, background='#111')
-        Label(min_size_frame, text='MIN FILE SIZE:', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        Label(file_size_frame, image=self.audio_file_icon, text=' MUSIC FILE SIZE', compound='left', background=file_size_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        min_size_frame: ClassVar = Frame(file_size_frame, background=file_size_frame['background'])
+        Label(min_size_frame, text='MIN FILE SIZE:', background=min_size_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         size_box_validator = (self.main_window.register(self.validate_size_entry), '%S', '%i')
         self.min_size_entry: ClassVar = Entry(min_size_frame, validate="key", validatecommand=size_box_validator, exportselection=False, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#212121', foreground='#fff', font=('Consolas', 12), width=8, justify='center')
         self.min_size_entry.pack(side='left', anchor='w')
-        Label(min_size_frame, text='MB', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        Label(min_size_frame, text='MB', background=min_size_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         min_size_frame.pack(side='top', fill='x', expand=True)
-        max_size_frame: ClassVar = Frame(file_size_frame, background='#111')
-        Label(max_size_frame, text='MAX FILE SIZE:', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        max_size_frame: ClassVar = Frame(file_size_frame, background=file_size_frame['background'])
+        Label(max_size_frame, text='MAX FILE SIZE:', background=max_size_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         size_box_validator = (self.main_window.register(self.validate_size_entry), '%S', '%i')
         self.max_size_entry: ClassVar = Entry(max_size_frame, validate="key", validatecommand=size_box_validator, exportselection=False, border=0, insertbackground='#fff', selectbackground='#333', selectforeground='#fff', background='#212121', foreground='#fff', font=('Consolas', 12), width=8, justify='center')
         self.max_size_entry.pack(side='left', anchor='w')
-        Label(max_size_frame, text='MB', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        Label(max_size_frame, text='MB', background=max_size_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         max_size_frame.pack(side='top', fill='x', expand=True)
         file_size_frame.pack(side='top', fill='x', pady=(0, 10))
         # transition
         transition_frame = Frame(self.settings_cards, background='#111')
-        Label(transition_frame, image=self.transition_icon, text=' TRANSITION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.transition_label: ClassVar = Label(transition_frame, text=f'VALUE: {self.settings["transition"]}s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(transition_frame, image=self.transition_icon, text=' TRANSITION', compound='left', background=transition_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.transition_label: ClassVar = Label(transition_frame, text=f'VALUE: {self.settings["transition"]}s', background=transition_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.transition_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
-        Label(transition_frame, text='0s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        Label(transition_frame, text='0s', background=transition_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         self.transition_scale: ClassVar = ttk.Scale(transition_frame, orient='horizontal', from_=0, to=18, length=5, command=self.change_transition)
         self.transition_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
-        Label(transition_frame, text='18s', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
+        Label(transition_frame, text='18s', background=transition_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
         transition_frame.pack(side='top', fill='x', pady=(0, 10))
         # move playing song to view
         move_song_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(move_song_frame, image=self.arrow_icon, text=' MOVE PLAYING SONG TO VIEW', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.move_song_label: ClassVar = Label(move_song_frame, text=f'{self.settings["move_song"]} MOVE PLAYING SONG TO VIEW', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(move_song_frame, image=self.arrow_icon, text=' MOVE PLAYING SONG TO VIEW', compound='left', background=move_song_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.move_song_label: ClassVar = Label(move_song_frame, text=f'{self.settings["move_song"]} MOVE PLAYING SONG TO VIEW', background=move_song_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.move_song_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
-        Radiobutton(move_song_frame, relief='flat', text='ALWAYS', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(move_song_frame, relief='flat', text='ALWAYS', indicatoron=False, font=('corbel', 12), bd=0, background=move_song_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='ALWAYS', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(move_song_frame, relief='flat', text='NEVER', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(move_song_frame, relief='flat', text='NEVER', indicatoron=False, font=('corbel', 12), bd=0, background=move_song_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='NEVER', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(move_song_frame, relief='flat', text='WHILE PLAYLIST IS NOT ACTIVE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(move_song_frame, relief='flat', text='WHILE PLAYLIST IS NOT ACTIVE', indicatoron=False, font=('corbel', 12), bd=0, background=move_song_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.move_song, value='WHILE', command=self.change_move_song).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         move_song_frame.pack(side='top', fill='x', pady=(0, 10))
         # time precision
         time_precision_frame = Frame(self.settings_cards, background='#111')
-        Label(time_precision_frame, image=self.time_icon, text=' TIME PRECISION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.precision_label: ClassVar = Label(time_precision_frame, text='CURRENT PRECISION: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(time_precision_frame, image=self.time_icon, text=' TIME PRECISION', compound='left', background=time_precision_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.precision_label: ClassVar = Label(time_precision_frame, text='CURRENT PRECISION: ', background=time_precision_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.precision_label.pack(side='top', fill='x', pady=5, padx=10)
-        Radiobutton(time_precision_frame, relief='flat', text='PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(time_precision_frame, relief='flat', text='PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background=time_precision_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.time_precision, value='PRECISE', command=self.change_precision).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(time_precision_frame, relief='flat', text='MORE PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(time_precision_frame, relief='flat', text='MORE PRECISE', indicatoron=False, font=('corbel', 12), bd=0, background=time_precision_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.time_precision, value='MORE PRECISE', command=self.change_precision).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         time_precision_frame.pack(side='top', fill='x', pady=(0, 10))
         # after init
         play_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(play_frame, image=self.power_icon, text=' STARTUP', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.startup_label: ClassVar = Label(play_frame, text='ON APP STARTUP: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(play_frame, image=self.power_icon, text=' STARTUP', compound='left', background=play_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.startup_label: ClassVar = Label(play_frame, text='ON APP STARTUP: ', background=play_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.startup_label.pack(side='top', fill='x', pady=5, padx=10)
-        Radiobutton(play_frame, relief='flat', text='DO NOTHING', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(play_frame, relief='flat', text='DO NOTHING', indicatoron=False, font=('corbel', 12), bd=0, background=play_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='DO NOTHING', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(play_frame, relief='flat', text='PLAY LATEST SONG', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(play_frame, relief='flat', text='PLAY LATEST SONG', indicatoron=False, font=('corbel', 12), bd=0, background=play_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='PLAY LATEST SONG', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(play_frame, relief='flat', text='PLAY FIRST SONG', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(play_frame, relief='flat', text='PLAY FIRST SONG', indicatoron=False, font=('corbel', 12), bd=0, background=play_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.on_startup, value='PLAY FIRST SONG', command=self.change_startup).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         play_frame.pack(side='top', fill='x', pady=(0, 10))
         # scroll acceleration
         scroll_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(scroll_frame, image=self.slider_icon, text=' SCROLL ACCELERATION', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.acceleration_label: ClassVar = Label(scroll_frame, text=f'VALUE: {self.settings["wheel_acceleration"]}X', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(scroll_frame, image=self.slider_icon, text=' SCROLL ACCELERATION', compound='left', background=scroll_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.acceleration_label: ClassVar = Label(scroll_frame, text=f'VALUE: {self.settings["wheel_acceleration"]}X', background=scroll_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.acceleration_label.pack(side='top', fill='x', anchor='center', pady=5, padx=10)
-        Label(scroll_frame, text='SLOW', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
+        Label(scroll_frame, text='SLOW', background=scroll_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=5, padx=10)
         self.acceleration_scale: ClassVar = ttk.Scale(scroll_frame, orient='horizontal', from_=1, to=8, length=8, command=self.change_acceleration)
         self.acceleration_scale.pack(side='left', fill='x', anchor='w', expand=True, pady=5, padx=10)
-        Label(scroll_frame, text='FAST', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
+        Label(scroll_frame, text='FAST', background=scroll_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='left', anchor='w', pady=(5, 10), padx=10)
         scroll_frame.pack(side='top', fill='x', pady=(0, 10))
         # updater
         update_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(update_frame, image=self.update_big_icon, text=' UPDATES', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        self.update_label: ClassVar = Label(update_frame, text='CHECK FOR UPDATES: ', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w')
+        Label(update_frame, image=self.update_big_icon, text=' UPDATES', compound='left', background=update_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        self.update_label: ClassVar = Label(update_frame, text='CHECK FOR UPDATES: ', background=update_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w')
         self.update_label.pack(side='top', fill='x', pady=5, padx=10)
-        Radiobutton(update_frame, relief='flat', text='YES', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(update_frame, relief='flat', text='YES', indicatoron=False, font=('corbel', 12), bd=0, background=update_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=True, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(update_frame, relief='flat', text='NO', indicatoron=False, font=('corbel', 12), bd=0, background=update_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.update, value=False, command=self.change_update).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         update_frame.pack(side='top', fill='x', pady=(0, 10))
         # icons
         icons_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(icons_frame, image=self.question_mark_icon, text=' ICONS', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(icons_frame, text='Note: Restart needed to apply changes', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Radiobutton(icons_frame, relief='flat', text='USE DEFAULT', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Label(icons_frame, image=self.question_mark_icon, text=' ICONS', compound='left', background=icons_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(icons_frame, text='Note: Restart needed to apply changes', background=icons_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Radiobutton(icons_frame, relief='flat', text='USE DEFAULT', indicatoron=False, font=('corbel', 12), bd=0, background=icons_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(icons_frame, relief='flat', text='USE FLUENT', indicatoron=False, font=('corbel', 12), bd=0, background='#111', foreground='#fff', selectcolor='#212121', takefocus=False,
+        Radiobutton(icons_frame, relief='flat', text='USE FLUENT', indicatoron=False, font=('corbel', 12), bd=0, background=icons_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='fluent_icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         icons_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(about_frame, text=f'VERSION: {self.VERSION}', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(about_frame, text=f'ICONS: icons8.com', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(about_frame, text=f'AUTHOR: Mateusz Perczak (Łosiek)', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
-        Label(about_frame, text=f'LICENCE: MIT', background='#111', foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=(5, 10), padx=10)
+        Label(about_frame, image=self.logo_icon, text=' ABOUT SOUNDER', compound='left', background=about_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'VERSION: {self.VERSION}', background=about_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'ICONS: icons8.com', background=about_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'AUTHOR: Mateusz Perczak (Łosiek)', background=about_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(about_frame, text=f'LICENCE: MIT', background=about_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=(5, 10), padx=10)
         about_frame.pack(side='top', fill='x', pady=(0, 10))
         # end
         # default settings
         default_frame: ClassVar = Frame(self.settings_cards, background='#111')
-        Label(default_frame, image=self.restore_icon, text=' DEFAULT SETTINGS', compound='left', background='#111', foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
+        Label(default_frame, image=self.restore_icon, text=' DEFAULT SETTINGS', compound='left', background=default_frame['background'], foreground='#fff', font=('Consolas', 16), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
         ttk.Button(default_frame, text='RESTORE DEFAULT SETTINGS', style='restore.TButton', takefocus=False, command=self.default_settings).pack(side='top', fill='x', pady=(5, 10), padx=10)
         default_frame.pack(side='top', fill='x', pady=(0, 10))
         # update canvas
-        self.settings_cards.bind('<Configure>', lambda _: self.settings_canvas.configure(scrollregion=self.settings_canvas.bbox('all')))
+        self.settings_cards.bind('<Expose>', lambda _: self.settings_canvas.configure(scrollregion=self.settings_canvas.bbox('all')))
         self.settings_window: ClassVar = self.settings_canvas.create_window((0, 0), window=self.settings_cards, anchor='nw')
-        self.settings_canvas.bind('<Configure>', lambda _: self.settings_canvas.itemconfigure(self.settings_window, width=self.settings_canvas.winfo_width(), height=self.settings_cards.winfo_height()))
+        self.settings_canvas.bind('<Expose>', lambda _: self.settings_canvas.itemconfigure(self.settings_window, width=self.settings_canvas.winfo_width(), height=self.settings_cards.winfo_height()))
         # place widgets
         self.settings_top_frame.pack(side='top', fill='x', ipady=20, pady=10)
         self.settings_scrollbar.pack(side='right', fill='y', pady=(0, 10))
@@ -385,7 +386,7 @@ class Sounder:
         # change how the closing of the program works
         self.main_window.protocol('WM_DELETE_WINDOW', self.close)
         # apply settings
-        self.apply_settings()
+        Thread(target=self.apply_settings, daemon=True).start()
         # show window
         self.main_window.after(150, lambda: self.main_window.deiconify())
         # init sort menu
@@ -405,7 +406,6 @@ class Sounder:
 
     def load_images(self) -> None:
         try:
-            self.main_window.iconbitmap(f'{self.settings["icons_folder"]}\\icon.ico')
             self.music_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\music.png').resize((35, 35)))
             self.cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\cover_art.png').resize((220, 220)))
             self.playlist_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\playlist.png').resize((35, 35)))
@@ -446,6 +446,7 @@ class Sounder:
             self.update_big_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\update.png').resize((40, 40)))
             self.menu_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\menu.png').resize((30, 30)))
             self.trash_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\trash.png').resize((20, 20)))
+            self.file_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\file.png').resize((25, 25)))
             self.filter_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\filter.png').resize((20, 20)))
             self.sort_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\sort.png').resize((30, 30)))
             self.heart_icon: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\heart.png').resize((30, 30)))
@@ -624,10 +625,15 @@ class Sounder:
                 if bool(self.playlist):
                     self.song = self.playlist[0]
                     self.action_play()
-            # secret stuff
+            # debugger
             if 'debug' in self.settings:
                 if self.settings['debug']:
                     self.main_window.bind('<F12>', lambda _: Debugger(self.main_window))
+            # title bar icon
+            self.main_window.iconphoto(False, self.logo_icon)
+            # check for update
+            if bool(self.settings['update']):
+                Thread(target=self.check_update, daemon=True).start()
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -1031,61 +1037,61 @@ class Sounder:
         if bool(self.playlist) or bool(self.songs):
             if mixer.music.get_busy():
                 if self.paused:
-                    self.unpause_song()
+                    Thread(target=self.unpause_song, daemon=True).start()
                 else:
-                    self.pause_song()
+                    Thread(target=self.pause_song, daemon=True).start()
             elif bool(self.song):
-                self.play_song()
+                Thread(target=self.play_song, daemon=True).start()
             else:
                 self.song = self.playlist[0]
-                self.play_song()
+                Thread(target=self.play_song, daemon=True).start()
 
     def action_next(self) -> None:
         if bool(self.song):
             if bool(self.playlist) and self.song in self.playlist:
                 if (self.playlist.index(self.song) + 1) < len(self.playlist):
                     self.song = self.playlist[self.playlist.index(self.song) + 1]
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
                 else:
                     self.song = self.playlist[0]
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
             elif bool(self.songs) and self.song in self.songs:
                 if (self.songs.index(self.song) + 1) < len(self.songs):
                     self.song = self.songs[self.songs.index(self.song) + 1]
                 else:
                     self.song = self.songs[0]
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
         else:
-            self.play_song()
+            Thread(target=self.play_song, daemon=True).start()
     
     def action_prev(self) -> None:
         if bool(self.song):
             if bool(self.playlist) and self.song in self.playlist:
                 if (self.playlist.index(self.song) - 1) >= 0:
                     self.song = self.playlist[self.playlist.index(self.song) - 1]
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
             elif bool(self.songs) and self.song in self.songs:
                 if (self.songs.index(self.song) - 1) >= 0:
                     self.song = self.songs[self.songs.index(self.song) - 1]
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
         else:
-            self.play_song()
+            Thread(target=self.play_song, daemon=True).start()
 
     def action_card(self, song) -> None:
         if bool(self.playlist):
             if song == self.song and mixer.music.get_busy():
                 if self.paused:
-                    self.unpause_song()
+                    Thread(target=self.unpause_song, daemon=True).start()
                 else:
-                    self.pause_song()
+                    Thread(target=self.pause_song, daemon=True).start()
             else:
                 self.song = song
-                self.play_song()
+                Thread(target=self.play_song, daemon=True).start()
     
     def action_all(self) -> None:
         if bool(self.playlist):
             self.song = self.playlist[0]
-            self.play_song()
+            Thread(target=self.play_song, daemon=True).start()
 
     def move_to_view(self) -> None:
         if bool(self.playlist) and bool(self.song) and self.song in self.playlist:
@@ -1097,12 +1103,12 @@ class Sounder:
                 mixer.music.load(self.song)
                 mixer.music.play()
                 self.paused = False
-                self.update_songs_metadata()
+                Thread(target=self.update_songs_metadata, daemon=True).start()
                 self.update_active_card()
                 self.update_play_button()
                 self.update_favorite_button()
-                if active_count() == 1:
-                    Thread(target=self.play_thread, daemon=True).start()
+                if active_count() == 1 or not any(thread for thread in enum_threads() if 'PlayThread' == thread.getName()):
+                    Thread(target=self.play_thread, daemon=True, name='PlayThread').start()
                 if self.settings['move_song'] == 'ALWAYS':
                     self.move_to_view()
                 elif self.settings['move_song'] == 'WHILE':
@@ -1164,8 +1170,10 @@ class Sounder:
                 if 'APIC:' in self.songs_metadata[self.song][0]:
                     self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[self.song][0].get("APIC:").data)).resize((220, 220)))
                     self.cover_art.configure(image=self.new_cover_art_icon)
+                    self.main_window.iconphoto(False, self.new_cover_art_icon)
                 else:
                     self.cover_art.configure(image=self.cover_art_icon)
+                    self.main_window.iconphoto(False, self.cover_art_icon)
                 if 'TIT2' in self.songs_metadata[self.song][0]:
                     self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
                 else:
@@ -1202,27 +1210,27 @@ class Sounder:
         try:
             if bool(self.songs) or bool(self.playlist):
                 if self.settings['repeat'] == 'one':
-                    self.play_song()
+                    Thread(target=self.play_song, daemon=True).start()
                 elif self.settings['repeat'] == 'all' and bool(self.playlist):
                     if bool(self.song):
                         if self.song in self.playlist and (self.playlist.index(self.song) + 1) < len(self.playlist):
                             self.song = self.playlist[self.playlist.index(self.song) + 1]
-                            self.play_song()
+                            Thread(target=self.play_song, daemon=True).start()
                         else:
                             self.song = self.playlist[0]
-                            self.play_song()
+                            Thread(target=self.play_song, daemon=True).start()
                     else:
-                        self.play_song()
+                        Thread(target=self.play_song, daemon=True).start()
                 elif self.settings['repeat'] == 'all' and bool(self.songs):
                     if bool(self.song):
                         if (self.songs.index(self.song) + 1) < len(self.songs) and self.song in self.songs:
                             self.song = self.songs[self.songs.index(self.song) + 1]
-                            self.play_song()
+                            Thread(target=self.play_song, daemon=True).start()
                         else:
                             self.song = self.songs[0]
-                            self.play_song()
+                            Thread(target=self.play_song, daemon=True).start()
                     else:
-                        self.play_song()
+                        Thread(target=self.play_song, daemon=True).start()
                 elif self.settings['repeat'] == 'none':
                     self.update_active_card()
                     self.update_play_button()
@@ -1234,8 +1242,9 @@ class Sounder:
         self.acceleration_label['text'] = f'VALUE: {self.settings["wheel_acceleration"]}X'
 
     def default_settings(self) -> None:
-        self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE', 'icons_folder': 'icons', 'min_file_size': 0, 'max_file_size': 512}
-        self.close()
+        if askyesno('SOUNDER', f'Are you sure you want to restore default settings?', icon='warning'):
+            self.settings = {'folders': [], 'last_card': 'playback', 'shuffle': False, 'repeat': 'none', 'wheel_acceleration': 1.0, 'width': 750, 'height': 450, 'volume': 0.50, 'song': '', 'on_startup': 'DO NOTHING', 'transition': 0, 'time_precision': 'PRECISE', 'update': True, 'blacklist': [], 'sort_by': 'name', 'favorites': [], 'move_song': 'WHILE', 'icons_folder': 'icons', 'min_file_size': 0, 'max_file_size': 512}
+            self.close()
     
     def change_startup(self) -> None:
         value: str = self.on_startup.get()
@@ -1251,7 +1260,7 @@ class Sounder:
         else:
             self.precision_label['text'] = f'CURRENT PRECISION: {value} (0:00:0000)'
         if bool(self.song):
-            self.update_songs_metadata()
+            Thread(target=self.update_songs_metadata, daemon=True).start()
         del value
 
     def change_transition(self, event) -> None:
@@ -1276,33 +1285,42 @@ class Sounder:
 
     def open_music_menu(self) -> None:
         try:
-            if self.menu_frame.winfo_ismapped():
-                self.menu_frame.pack_forget()
+            if self.button_frame.winfo_ismapped():
+                self.button_frame.pack_forget()
+                self.menu_frame.configure(width=1)  
             else:
-                self.menu_frame.pack(side='left', anchor='s', fill='x', expand=True)
+                self.button_frame.pack(side='left', fill='y', padx=10, pady=(0, 10))
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
     def manage_song(self, delete: bool) -> None:
         try:
-            if bool(self.song):
+            if bool(self.song) and isfile(self.song):
+                msg: tuple = ('remove', 'delete')
                 song: str = self.song
-                if mixer.music.get_busy():
-                    mixer.music.unload()
-                if len(self.playlist) > 1:
-                    self.action_next()
-                if song in self.playlist:
-                    self.playlist.remove(song)
-                if song in self.songs:
-                    self.songs.remove(song)
-                if bool(delete) and isfile(song):
-                    rmfile(song)
-                elif isfile(song):
-                    self.settings['blacklist'].append(basename(song))
-                self.add_songs()
-                self.refresh_songs()
-                self.update_active_card()
-                del song
+                if askyesno('SOUNDER', f'Are you sure you want to {msg[int(delete)]} {song}?', icon='warning'):
+                    if mixer.music.get_busy():
+                        mixer.music.unload()
+                        self.main_window.after(500, self.action_play)
+                    if delete:
+                        rmfile(song)
+                    else:
+                        self.settings['blacklist'].append(basename(song))
+                    if len(self.playlist) > 1:
+                        if self.playlist.index(song) < len(self.playlist):
+                            self.song = self.playlist[self.playlist.index(song) + 1]
+                        else:
+                            self.song = self.playlist[0]
+                    elif len(self.songs) > 1:
+                        self.song = self.songs[0]
+                    if song in self.playlist:
+                        self.playlist.remove(song)
+                    if song in self.songs:
+                        self.songs.remove(song)
+                    self.add_songs()
+                    self.refresh_songs()
+                    self.update_active_card()
+                del msg, song
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
@@ -1342,7 +1360,7 @@ class Sounder:
         else:
             self.settings['favorites'].append(basename(self.song))
         self.update_favorite_button()
-        self.change_sort()
+        Thread(target=self.change_sort, daemon=True).start()
 
     def change_move_song(self) -> None:
         value: str = self.move_song.get()

@@ -291,13 +291,14 @@ class Debugger:
         self.update_canvas()
 
     def inspect_widget(self, widget) -> None:
-        self.widget = widget
-        self.load_widget_childrens()
-        self.update_canvas()
-        self.unhighlight_elements()
-        self.load_properties()
-        if not self.widget in self.highlighted_elements:
-            self.highlight_element(self.widget, '#3498db')
+        if widget:
+            self.widget = widget
+            self.load_widget_childrens()
+            self.update_canvas()
+            self.unhighlight_elements()
+            self.load_properties()
+            if not self.widget in self.highlighted_elements:
+                self.highlight_element(self.widget, '#3498db')
 
     def finish_inspection(self, _) -> None:
         self.stop_inspecting()
@@ -337,27 +338,32 @@ class Debugger:
                     self.apply_button.state(['!disabled'])
 
     def apply_changes(self) -> None:
-        if self.widget.winfo_class() in ('Button', 'TButton', 'Label', 'TLabel', 'Radiobutton'):
-                self.widget['text'] = self.entry.get()
-        elif self.widget.winfo_class() in ('Entry', 'TEntry'):
-            self.widget.delete(0, 'end')
-            self.widget.insert(0, self.entry.get())
-        self.apply_button.state(['disabled'])
+        if self.widget:
+            if self.widget.winfo_class() in ('Button', 'TButton', 'Label', 'TLabel', 'Radiobutton'):
+                    self.widget['text'] = self.entry.get()
+            elif self.widget.winfo_class() in ('Entry', 'TEntry'):
+                self.widget.delete(0, 'end')
+                self.widget.insert(0, self.entry.get())
+            self.apply_button.state(['disabled'])
 
     def highlight_element(self, widget, color) -> None:
-        if not widget in self.highlighted_elements:
-            if 'background' in widget.config():
-                self.highlighted_elements[widget] = widget['background']
-                widget['background'] = color
-                if widget.winfo_class() in ('Button', 'Radiobutton'):
-                    widget['state'] = 'disabled'
-            else:
-                self.highlighted_elements[widget] = ''
-                self.widget.state(['disabled'])
+        if widget:
+            if not widget in self.highlighted_elements:
+                if 'background' in widget.config():
+                    self.highlighted_elements[widget] = widget['background']
+                    widget['background'] = color
+                    if widget.winfo_class() in ('Button', 'Radiobutton'):
+                        widget['state'] = 'disabled'
+                else:
+                    self.highlighted_elements[widget] = ''
+                    self.widget.state(['disabled'])
 
     def unhighlight_elements(self) -> None:
         widgets_to_remove: list = []
         for widget in self.highlighted_elements:
+            if not widget:
+                widgets_to_remove.append(widget)
+                continue
             if 'background' in widget.config():
                 widget['background'] = self.highlighted_elements[widget]
                 if widget.winfo_class() in ('Button', 'Radiobutton'):
@@ -398,7 +404,3 @@ class Debugger:
             del self
         except Exception as _:
             print(format_exc())
-
-
-
-
