@@ -91,7 +91,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.6'
+        self.VERSION: str = '0.9.7'
         # on load
         # load settings
         self.load_settings()
@@ -353,8 +353,8 @@ class Sounder:
         Label(icons_frame, text='Note: Restart needed to apply changes', background=icons_frame['background'], foreground='#fff', font=('Consolas', 12), anchor='w').pack(side='top', fill='x', pady=5, padx=10)
         Radiobutton(icons_frame, relief='flat', text='USE DEFAULT', indicatoron=False, font=('corbel', 12), bd=0, background=icons_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
                     highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
-        Radiobutton(icons_frame, relief='flat', text='USE FLUENT', indicatoron=False, font=('corbel', 12), bd=0, background=icons_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
-                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='fluent_icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
+        Radiobutton(icons_frame, relief='flat', text='USE CUSTOM', indicatoron=False, font=('corbel', 12), bd=0, background=icons_frame['background'], foreground='#fff', selectcolor='#212121', takefocus=False,
+                    highlightbackground='#222', activebackground='#222', activeforeground='#fff', variable=self.icons_folder, value='custom_icons', command=self.change_icons).pack(side='left', fill='x', expand=True, padx=10, pady=(5, 10), ipady=5)
         icons_frame.pack(side='top', fill='x', pady=(0, 10))
         # about
         about_frame: ClassVar = Frame(self.settings_cards, background='#111')
@@ -824,7 +824,10 @@ class Sounder:
         self.move_to_view()
 
     def add_songs(self) -> None:
-        self.remove_music_cards()
+        for song in self.songs:
+            if self.songs_metadata[song][1]:
+                self.songs_metadata[song][1].destroy()
+                del self.songs_metadata[song]
         for song in self.songs:
             try:
                 self.music_card(song)
@@ -942,7 +945,8 @@ class Sounder:
             self.settings['shuffle'] = True
             self.shuffle_button.configure(style='shuffle.TButton')
         self.sort_songs()
-        self.add_songs()
+        self.remove_music_cards()
+        self.add_music_cards()
         self.update_active_card()
         self.move_to_view()
 
@@ -1350,7 +1354,8 @@ class Sounder:
                         self.playlist.remove(song)
                     if song in self.songs:
                         self.songs.remove(song)
-                    self.add_songs()
+                    self.songs_metadata[song][1].destroy()
+                    del self.songs_metadata[song]
                     self.refresh_songs()
                     self.update_active_card()
                 del msg, song
@@ -1382,7 +1387,8 @@ class Sounder:
         self.settings['sort_by'] = self.sort_by.get()
         if not self.settings['shuffle']:
             self.sort_songs()
-            self.add_songs()
+            self.remove_music_cards()
+            self.add_music_cards()
             self.search_song()
             self.update_active_card()
             self.move_to_view()
