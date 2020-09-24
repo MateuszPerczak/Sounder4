@@ -5,10 +5,11 @@ from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
 from os import getcwd, listdir, startfile, remove as rmfile
-from os.path import basename, isfile, isdir, splitext, abspath, join, getsize
+from os.path import basename, isfile, isdir, splitext, abspath, getsize, join as joinpath
 from PIL import Image, ImageTk
 from json import dump, load
 from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
 from io import BytesIO
 from random import shuffle, randint
 from datetime import timedelta
@@ -18,7 +19,7 @@ from threading import Thread, active_count, enumerate as enum_threads
 from time import sleep
 from webbrowser import open as open_browser
 from requests import get
-from Debugger import Debugger
+from Debugger.Debugger import Debugger
 
 class Sounder:
     def __init__(self):
@@ -90,7 +91,7 @@ class Sounder:
         self.volume: float = 0.0
         self.song: str = ''
         self.paused: bool = False
-        self.VERSION: str = '0.9.5'
+        self.VERSION: str = '0.9.6'
         # on load
         # load settings
         self.load_settings()
@@ -461,36 +462,49 @@ class Sounder:
             title: str = splitext(basename(song))[0]
             artist: str = 'Unknown'
             length: str = '-:--:--'
-            if self.songs_metadata[song][0] is not None:
+            if splitext(song)[1] == '.mp3':
+                if self.songs_metadata[song][0] is not None:
+                    length = str(timedelta(seconds=int(self.songs_metadata[song][0].info.length)))
+                    if 'TIT2' in self.songs_metadata[song][0]:
+                        title = f'{self.songs_metadata[song][0]["TIT2"]}'
+                    if 'TPE1' in self.songs_metadata[song][0]:
+                        artist = f'{self.songs_metadata[song][0]["TPE1"]}'
+            elif splitext(song)[1] == '.flac':
+                title = title.join(self.songs_metadata[song][0]["title"])
                 length = str(timedelta(seconds=int(self.songs_metadata[song][0].info.length)))
-                if 'TIT2' in self.songs_metadata[song][0]:
-                    title = f'{self.songs_metadata[song][0]["TIT2"]}'
-                if 'TPE1' in self.songs_metadata[song][0]:
-                    artist = f'{self.songs_metadata[song][0]["TPE1"]}'
-            music_frame: ClassVar = Frame(self.playlist_cards, background='#111')
-            Label(music_frame, image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
-            Label(music_frame, text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
-            Label(music_frame, text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
-            Label(music_frame, image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
-            self.songs_metadata[song][1]: ClassVar = ttk.Button(music_frame, image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
-            self.songs_metadata[song][1].place(relx=1, rely=1, relheight=1, anchor='se')
-            music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
-            del title, artist, length, music_frame
+                artist = artist.join(self.songs_metadata[song][0]["artist"])
+            self.songs_metadata[song][1]: ClassVar = Frame(self.playlist_cards, background='#111')
+            Label(self.songs_metadata[song][1], image=self.record_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
+            Label(self.songs_metadata[song][1], text=f'{title}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.28, anchor='w')
+            Label(self.songs_metadata[song][1], text=f'{artist}', background='#333', foreground='#fff', font=('Consolas', 12)).place(x=58, rely=0.72, anchor='w')
+            Label(self.songs_metadata[song][1], image=self.clock_icon, text=length, compound='left', background='#333', foreground='#fff', font=('Consolas', 12)).place(relx=0.9, rely=0.5, height=30, anchor='e')
+            self.songs_metadata[song][2]: ClassVar = ttk.Button(self.songs_metadata[song][1], image=self.play_icon, style='folder.TButton', takefocus=False, command=lambda: self.action_card(song))
+            self.songs_metadata[song][2].place(relx=1, rely=1, relheight=1, anchor='se')
+            self.songs_metadata[song][1].pack(side='top', fill='x', ipady=30, pady=(0, 10))
+            del title, artist, length
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
     def remove_music_cards(self) -> None:
-        for widget in self.get_all_widgets(self.playlist_cards):
-            widget.destroy()
+        for song in self.songs:
+            if self.songs_metadata[song][1] and self.songs_metadata[song][1].winfo_ismapped():
+                self.songs_metadata[song][1].pack_forget()
+
+    def add_music_cards(self) -> None:
+        for song in self.songs:
+            if self.songs_metadata[song][1] and not self.songs_metadata[song][1].winfo_ismapped():
+                self.songs_metadata[song][1].pack(side='top', fill='x', ipady=30, pady=(0, 10))
 
     def get_metadata(self) -> None:
         try:
             self.songs_metadata: dict = {}
             for song in self.songs:
                 if splitext(song)[1] == '.mp3':
-                    self.songs_metadata[song]: list = [MP3(song), None]
+                    self.songs_metadata[song]: list = [MP3(song), None, None]
+                elif splitext(song)[1] == '.flac':
+                    self.songs_metadata[song]: list = [FLAC(song), None, None]
                 else:
-                    self.songs_metadata[song]: list = [None, None]
+                    self.songs_metadata[song]: list = [None, None, None]
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -527,7 +541,7 @@ class Sounder:
 
     def add_folder(self) -> None:
         new_directory: str = askdirectory()
-        if bool(new_directory) and not new_directory in self.settings['folders']:
+        if new_directory and not new_directory in self.settings['folders']:
             self.settings['folders'].append(new_directory)
             self.scan_for_songs()
             self.scan_for_folders()
@@ -550,8 +564,6 @@ class Sounder:
                 self.folder_card(folder)
             else:
                 self.settings['folders'].remove(folder)
-        if not bool(self.settings['folders']):
-            self.info_card(f'ADD A FOLDER TO START LISTENING', self.folder_cards)
             self.stop_all_playback()
             if randint(0, 2) > 0:
                 self.easter_egg()
@@ -616,13 +628,13 @@ class Sounder:
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
             if self.settings['on_startup'] in ['DO NOTHING', 'PLAY LATEST SONG']:
-                if bool(self.playlist):
+                if self.playlist:
                     if self.settings['song'] in self.playlist:
                         self.song = self.settings['song']  
                         if self.settings['on_startup'] == 'PLAY LATEST SONG':
                             self.action_play()
             elif self.settings['on_startup'] == 'PLAY FIRST SONG':
-                if bool(self.playlist):
+                if self.playlist:
                     self.song = self.playlist[0]
                     self.action_play()
             # debugger
@@ -632,7 +644,7 @@ class Sounder:
             # title bar icon
             self.main_window.iconphoto(False, self.logo_icon)
             # check for update
-            if bool(self.settings['update']):
+            if self.settings['update']:
                 Thread(target=self.check_update, daemon=True).start()
         except Exception as err_obj:
             self.dump_err(err_obj, True)
@@ -784,15 +796,15 @@ class Sounder:
         self.main_window.destroy()
 
     def scan_for_songs(self) -> None:
-        supported_extensions: tuple = ('.mp3')
+        supported_extensions: tuple = ('.mp3', '.flac')
         self.songs = []
         min_size: int = self.settings['min_file_size'] * 1000000
         max_size: int = self.settings['max_file_size'] * 1000000
         try:
             for folder in self.settings['folders']:
                 for file in listdir(folder):
-                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist'] and min_size < getsize(abspath(join(folder, file))) < max_size:
-                        self.songs.append(abspath(join(folder, file)))
+                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist'] and min_size < getsize(abspath(joinpath(folder, file))) < max_size:
+                        self.songs.append(abspath(joinpath(folder, file)))
             del supported_extensions, min_size, max_size
             self.playlist = self.songs
             self.active_card = []
@@ -818,13 +830,11 @@ class Sounder:
                 self.music_card(song)
             except Exception as err_obj:
                 error(err_obj, exc_info=True)
-        if not bool(self.songs):
-            self.info_card(f'WE ARE UNABLE TO FIND ANY SONG', self.playlist_cards)
 
     def validate_search_entry(self, char: str, _) -> bool:
         try:
             disallowed_chars: tuple = ('}', '{', ']', '[', '+', '=', '|', '\\', ':', ';', '/', '?', '>', '<', '%', '(', ')', '*', '^')
-            if not bool(char) or len(char) > 1:
+            if not char or len(char) > 1:
                 del disallowed_chars
                 return True
             if char in disallowed_chars:
@@ -844,32 +854,34 @@ class Sounder:
     def search_song(self, event=None) -> None:
         word: str = str(self.search_box.get())
         result: str = ''
-        if bool(word) and bool(self.songs):
-            self.playlist = []
-            self.active_card = []
+        if word and self.songs:
             self.remove_music_cards()
+            self.active_card = []
+            self.playlist = []
             self.playlist_canvas.yview_moveto(0)
             for song in self.songs:
-                if self.songs_metadata[song][0] is not None:
-                    if 'TIT2' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TIT2"]} '
-                    if 'TPE1' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TPE1"]} '
-                    if 'TALB' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TALB"]} '
-                    if 'TCON' in self.songs_metadata[song][0]:
-                        result += f'{self.songs_metadata[song][0]["TCON"]} '
-                result += f'{basename(song)} '
-                if bool(findall(word.lower(), result.lower())):
-                    self.music_card(song)
+                if splitext(song)[1] == '.mp3':
+                    if self.songs_metadata[song][0] is not None:
+                        if 'TIT2' in self.songs_metadata[song][0]:
+                            result += f'{self.songs_metadata[song][0]["TIT2"]} '
+                        if 'TPE1' in self.songs_metadata[song][0]:
+                            result += f'{self.songs_metadata[song][0]["TPE1"]} '
+                        if 'TALB' in self.songs_metadata[song][0]:
+                            result += f'{self.songs_metadata[song][0]["TALB"]} '
+                        if 'TCON' in self.songs_metadata[song][0]:
+                            result += f'{self.songs_metadata[song][0]["TCON"]} '
+                elif splitext(song)[1] == '.flac':
+                    result += result.join(self.songs_metadata[song][0]['artist'])
+                    result += result.join(self.songs_metadata[song][0]['album'])
+                    result += result.join(self.songs_metadata[song][0]['title'])
+                result += f'{basename(song)} '       
+                if findall(word.lower(), result.lower()):
+                    self.songs_metadata[song][1].pack(side='top', fill='x', ipady=30, pady=(0, 10))
                     self.playlist.append(song)
                 result = ''
-            self.refresh_songs()
-            if not bool(self.playlist_cards.winfo_children()):
-                self.info_card(f'NO MATCH FOR \'{word}\'', self.playlist_cards)
         else:
             self.playlist = self.songs
-            self.add_songs()
+            self.add_music_cards()
             self.refresh_songs()
         self.update_lenght()
         self.update_num_of_songs()
@@ -877,15 +889,9 @@ class Sounder:
         self.move_to_view()
         del word, result
 
-    def info_card(self, msg: str, frame: ClassVar) -> None:
-        music_frame: ClassVar = Frame(frame, background='#111')
-        Label(music_frame, image=self.close_icon, background='#333', foreground='#fff', font=('Consolas', 15)).place(x=0, y=0, width=50, relheight=1)
-        Label(music_frame, text=f' {msg}', background='#111', foreground='#fff', font=('Consolas', 14)).place(x=58, rely=0.5, anchor='w')
-        music_frame.pack(side='top', fill='x', ipady=30, pady=(0, 10))
-
     def update_state(self) -> None:
         # disable buttons
-        if not bool(self.songs):
+        if not self.songs:
             self.playlist_play.state(['disabled'])
             self.shuffle_button.state(['disabled'])
             self.play_button.state(['disabled'])
@@ -1013,9 +1019,9 @@ class Sounder:
                     for widget in self.active_card:
                         widget.configure(image=self.play_icon)
                         self.active_card.remove(widget)
-            if  mixer.music.get_busy() and bool(self.song) and bool(self.playlist) and self.song in self.songs_metadata and self.songs_metadata[self.song][1] in self.get_all_widgets(self.playlist_cards) and not self.paused:
-                self.songs_metadata[self.song][1].configure(image=self.pause_icon)
-                self.active_card.append(self.songs_metadata[self.song][1])
+            if  mixer.music.get_busy() and self.song and self.playlist and self.song in self.songs_metadata and self.songs_metadata[self.song][2] in self.get_all_widgets(self.playlist_cards) and not self.paused:
+                self.songs_metadata[self.song][2].configure(image=self.pause_icon)
+                self.active_card.append(self.songs_metadata[self.song][2])
         except Exception as err_obj:
             self.dump_err(err_obj, True)
 
@@ -1034,28 +1040,28 @@ class Sounder:
             self.favorites_button.configure(image=self.heart_icon)
 
     def action_play(self) -> None:
-        if bool(self.playlist) or bool(self.songs):
+        if self.playlist or self.songs:
             if mixer.music.get_busy():
                 if self.paused:
                     Thread(target=self.unpause_song, daemon=True).start()
                 else:
                     Thread(target=self.pause_song, daemon=True).start()
-            elif bool(self.song):
+            elif self.song:
                 Thread(target=self.play_song, daemon=True).start()
             else:
                 self.song = self.playlist[0]
                 Thread(target=self.play_song, daemon=True).start()
 
     def action_next(self) -> None:
-        if bool(self.song):
-            if bool(self.playlist) and self.song in self.playlist:
+        if self.song:
+            if self.playlist and self.song in self.playlist:
                 if (self.playlist.index(self.song) + 1) < len(self.playlist):
                     self.song = self.playlist[self.playlist.index(self.song) + 1]
                     Thread(target=self.play_song, daemon=True).start()
                 else:
                     self.song = self.playlist[0]
                     Thread(target=self.play_song, daemon=True).start()
-            elif bool(self.songs) and self.song in self.songs:
+            elif self.songs and self.song in self.songs:
                 if (self.songs.index(self.song) + 1) < len(self.songs):
                     self.song = self.songs[self.songs.index(self.song) + 1]
                 else:
@@ -1065,12 +1071,12 @@ class Sounder:
             Thread(target=self.play_song, daemon=True).start()
     
     def action_prev(self) -> None:
-        if bool(self.song):
-            if bool(self.playlist) and self.song in self.playlist:
+        if self.song:
+            if self.playlist and self.song in self.playlist:
                 if (self.playlist.index(self.song) - 1) >= 0:
                     self.song = self.playlist[self.playlist.index(self.song) - 1]
                     Thread(target=self.play_song, daemon=True).start()
-            elif bool(self.songs) and self.song in self.songs:
+            elif self.songs and self.song in self.songs:
                 if (self.songs.index(self.song) - 1) >= 0:
                     self.song = self.songs[self.songs.index(self.song) - 1]
                     Thread(target=self.play_song, daemon=True).start()
@@ -1078,7 +1084,7 @@ class Sounder:
             Thread(target=self.play_song, daemon=True).start()
 
     def action_card(self, song) -> None:
-        if bool(self.playlist):
+        if self.playlist:
             if song == self.song and mixer.music.get_busy():
                 if self.paused:
                     Thread(target=self.unpause_song, daemon=True).start()
@@ -1089,17 +1095,17 @@ class Sounder:
                 Thread(target=self.play_song, daemon=True).start()
     
     def action_all(self) -> None:
-        if bool(self.playlist):
+        if self.playlist:
             self.song = self.playlist[0]
             Thread(target=self.play_song, daemon=True).start()
 
     def move_to_view(self) -> None:
-        if bool(self.playlist) and bool(self.song) and self.song in self.playlist:
+        if self.playlist and self.song and self.song in self.playlist:
             self.playlist_canvas.yview_moveto(float((self.playlist.index(self.song) * 71) / self.playlist_cards.winfo_height()))
 
     def play_song(self) -> None:
         try:
-            if bool(self.song) and bool(self.playlist) or bool(self.songs):
+            if self.song and self.playlist or self.songs:
                 mixer.music.load(self.song)
                 mixer.music.play()
                 self.paused = False
@@ -1120,14 +1126,14 @@ class Sounder:
             self.dump_err(err_obj, False)
 
     def pause_song(self) -> None:
-        if mixer.music.get_busy() and bool(self.songs):
+        if mixer.music.get_busy() and self.songs:
             mixer.music.pause()
             self.paused = True
             self.update_active_card()
             self.update_play_button()
 
     def unpause_song(self) -> None:
-        if mixer.music.get_busy() and bool(self.songs):
+        if mixer.music.get_busy() and self.songs:
             mixer.music.unpause()
             self.paused = False
             self.update_active_card()
@@ -1146,7 +1152,7 @@ class Sounder:
             position: float = 0.0
             minute: float = 0.0
             second: float = 0.0
-            while mixer.music.get_busy() and bool(self.song):
+            while mixer.music.get_busy() and self.song:
                 position = mixer.music.get_pos() / 1000
                 self.progress_bar['value'] = position
                 minute, second = divmod(position, 60)
@@ -1165,25 +1171,52 @@ class Sounder:
             self.dump_err(err_obj, True)
 
     def update_songs_metadata(self) -> None:
-        if bool(self.song):
-            if self.songs_metadata[self.song][0] is not None:
-                if 'APIC:' in self.songs_metadata[self.song][0]:
-                    self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[self.song][0].get("APIC:").data)).resize((220, 220)))
+        if self.song:
+            if splitext(self.song)[1] == '.mp3':
+                if self.songs_metadata[self.song][0] is not None:
+                    if 'APIC:' in self.songs_metadata[self.song][0]:
+                        self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[self.song][0].get("APIC:").data)).resize((220, 220)))
+                        self.cover_art.configure(image=self.new_cover_art_icon)
+                        self.main_window.iconphoto(False, self.new_cover_art_icon)
+                    else:
+                        self.cover_art.configure(image=self.cover_art_icon)
+                        self.main_window.iconphoto(False, self.cover_art_icon)
+                    if 'TIT2' in self.songs_metadata[self.song][0]:
+                        self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
+                    else:
+                        self.song_name['text'] = splitext(basename(self.song))[0]
+                    if 'TPE1' in self.songs_metadata[self.song][0]:
+                        self.song_artist['text'] = f'{self.songs_metadata[self.song][0]["TPE1"]}'
+                    else:
+                        self.song_artist['text'] = 'Unknown'
+                    if 'TALB' in self.songs_metadata[self.song][0]:
+                        self.album_name['text'] = f'{self.songs_metadata[self.song][0]["TALB"]}'
+                    else:
+                        self.album_name['text'] = 'Unknown'
+                    length: float = self.songs_metadata[self.song][0].info.length
+                    self.progress_bar['maximum'] = length
+                    minute, second = divmod((length), 60)
+                    if self.settings['time_precision'] == 'PRECISE':
+                        self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}'
+                    else:
+                        self.song_length['text'] = f'{int(minute)}:{str(int(second)).zfill(2)}:{str(second)[3:7].zfill(4)}'
+                    del length, minute, second
+            elif splitext(self.song)[1] == '.flac':
+                if self.songs_metadata[self.song][0].pictures:
+                    self.new_cover_art_icon: ClassVar = ImageTk.PhotoImage(Image.open(BytesIO(self.songs_metadata[self.song][0].pictures[0].data)).resize((220, 220)))
                     self.cover_art.configure(image=self.new_cover_art_icon)
                     self.main_window.iconphoto(False, self.new_cover_art_icon)
                 else:
                     self.cover_art.configure(image=self.cover_art_icon)
                     self.main_window.iconphoto(False, self.cover_art_icon)
-                if 'TIT2' in self.songs_metadata[self.song][0]:
-                    self.song_name['text'] = f'{self.songs_metadata[self.song][0]["TIT2"]}'
-                else:
-                    self.song_name['text'] = splitext(basename(self.song))[0]
-                if 'TPE1' in self.songs_metadata[self.song][0]:
-                    self.song_artist['text'] = f'{self.songs_metadata[self.song][0]["TPE1"]}'
+                if self.songs_metadata[self.song][0]["title"]:
+                    self.song_name['text'] = self.song_name['text'].join(self.songs_metadata[self.song][0]["title"])
+                if self.songs_metadata[self.song][0]["artist"]:
+                    self.song_artist['text'] = self.song_artist['text'].join(self.songs_metadata[self.song][0]["artist"])
                 else:
                     self.song_artist['text'] = 'Unknown'
-                if 'TALB' in self.songs_metadata[self.song][0]:
-                    self.album_name['text'] = f'{self.songs_metadata[self.song][0]["TALB"]}'
+                if self.songs_metadata[self.song][0]["album"]:
+                    self.album_name['text'] = self.album_name['text'].join(self.songs_metadata[self.song][0]["album"])
                 else:
                     self.album_name['text'] = 'Unknown'
                 length: float = self.songs_metadata[self.song][0].info.length
@@ -1208,11 +1241,11 @@ class Sounder:
 
     def after_play(self) -> None:
         try:
-            if bool(self.songs) or bool(self.playlist):
+            if self.songs or self.playlist:
                 if self.settings['repeat'] == 'one':
                     Thread(target=self.play_song, daemon=True).start()
-                elif self.settings['repeat'] == 'all' and bool(self.playlist):
-                    if bool(self.song):
+                elif self.settings['repeat'] == 'all' and self.playlist:
+                    if self.song:
                         if self.song in self.playlist and (self.playlist.index(self.song) + 1) < len(self.playlist):
                             self.song = self.playlist[self.playlist.index(self.song) + 1]
                             Thread(target=self.play_song, daemon=True).start()
@@ -1221,8 +1254,8 @@ class Sounder:
                             Thread(target=self.play_song, daemon=True).start()
                     else:
                         Thread(target=self.play_song, daemon=True).start()
-                elif self.settings['repeat'] == 'all' and bool(self.songs):
-                    if bool(self.song):
+                elif self.settings['repeat'] == 'all' and self.songs:
+                    if self.song:
                         if (self.songs.index(self.song) + 1) < len(self.songs) and self.song in self.songs:
                             self.song = self.songs[self.songs.index(self.song) + 1]
                             Thread(target=self.play_song, daemon=True).start()
@@ -1259,7 +1292,7 @@ class Sounder:
             self.precision_label['text'] = f'CURRENT PRECISION: {value} (0:00)'
         else:
             self.precision_label['text'] = f'CURRENT PRECISION: {value} (0:00:0000)'
-        if bool(self.song):
+        if self.song:
             Thread(target=self.update_songs_metadata, daemon=True).start()
         del value
 
@@ -1269,7 +1302,7 @@ class Sounder:
 
     def change_update(self) -> None:
         self.settings['update'] = self.update.get()
-        if bool(self.settings['update']):
+        if self.settings['update']:
             self.update_label['text'] = 'CHECK FOR UPDATES: YES'
         else:
             self.update_label['text'] = 'CHECK FOR UPDATES: NO'
@@ -1295,7 +1328,7 @@ class Sounder:
 
     def manage_song(self, delete: bool) -> None:
         try:
-            if bool(self.song) and isfile(self.song):
+            if self.song and isfile(self.song):
                 msg: tuple = ('remove', 'delete')
                 song: str = self.song
                 if askyesno('SOUNDER', f'Are you sure you want to {msg[int(delete)]} {song}?', icon='warning'):
@@ -1338,7 +1371,7 @@ class Sounder:
             self.sort_menu.mainloop()
 
     def open_sort_menu(self) -> None:
-        if bool(self.songs):
+        if self.songs:
             if self.sort_menu.winfo_ismapped():
                 self.sort_menu.withdraw()
             else:
@@ -1374,7 +1407,7 @@ class Sounder:
         del value
 
     def easter_egg(self) -> None:
-        if isfile(f'{self.settings["icons_folder"]}\\xx.png') and not bool(self.songs):
+        if isfile(f'{self.settings["icons_folder"]}\\xx.png') and not self.songs:
             self.mrt: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\xx.png').resize((220, 220)))
             self.cover_art.configure(image=self.mrt)
             self.song_name['text'] = 'To all of the queens who are fighting alone!'
@@ -1388,9 +1421,9 @@ class Sounder:
         try:
             min_size: str = self.min_size_entry.get()
             max_size: str = self.max_size_entry.get()
-            if bool(min_size):
+            if min_size:
                 self.settings['min_file_size'] = int(min_size)
-            if bool(max_size):
+            if max_size:
                 self.settings['max_file_size'] = int(max_size)
             del min_size, max_size
         except Exception as err_obj:
