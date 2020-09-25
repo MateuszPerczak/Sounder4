@@ -5,13 +5,13 @@ from logging import basicConfig, error, ERROR, getLevelName, getLogger, shutdown
 from traceback import format_exc
 from typing import ClassVar
 from os import getcwd, listdir, startfile, remove as rmfile
-from os.path import basename, isfile, isdir, splitext, abspath, getsize, join as joinpath
+from os.path import basename, isfile, isdir, splitext, abspath, getsize, join
 from PIL import Image, ImageTk
 from json import dump, load
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from io import BytesIO
-from random import shuffle, randint
+from random import shuffle, choice
 from datetime import timedelta
 from re import findall
 from pygame import mixer
@@ -565,8 +565,6 @@ class Sounder:
             else:
                 self.settings['folders'].remove(folder)
             self.stop_all_playback()
-            if randint(0, 2) > 0:
-                self.easter_egg()
 
     def open_logs(self) -> None:
         if getLogger().isEnabledFor(ERROR):
@@ -627,16 +625,16 @@ class Sounder:
             # on startup
             self.on_startup.set(self.settings['on_startup'])
             self.change_startup()
-            if self.settings['on_startup'] in ['DO NOTHING', 'PLAY LATEST SONG']:
+            if self.settings['on_startup'] in ['PLAY LATEST SONG', 'PLAY FIRST SONG']:
                 if self.playlist:
-                    if self.settings['song'] in self.playlist:
-                        self.song = self.settings['song']  
-                        if self.settings['on_startup'] == 'PLAY LATEST SONG':
-                            self.action_play()
-            elif self.settings['on_startup'] == 'PLAY FIRST SONG':
-                if self.playlist:
-                    self.song = self.playlist[0]
+                    if self.settings['on_startup'] == 'PLAY LATEST SONG' and self.settings['song'] in self.playlist:
+                        self.song = self.settings['song']
+                    else:
+                        self.song = self.playlist[0]
                     self.action_play()
+                    self.move_to_view()
+            elif self.playlist:
+                self.song = choice(self.playlist)
             # debugger
             if 'debug' in self.settings:
                 if self.settings['debug']:
@@ -803,8 +801,8 @@ class Sounder:
         try:
             for folder in self.settings['folders']:
                 for file in listdir(folder):
-                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist'] and min_size < getsize(abspath(joinpath(folder, file))) < max_size:
-                        self.songs.append(abspath(joinpath(folder, file)))
+                    if splitext(file)[1] in supported_extensions and not file in self.settings['blacklist'] and min_size < getsize(abspath(join(folder, file))) < max_size:
+                        self.songs.append(abspath(join(folder, file)))
             del supported_extensions, min_size, max_size
             self.playlist = self.songs
             self.active_card = []
@@ -815,9 +813,8 @@ class Sounder:
             self.update_num_of_songs()
             self.update_state()
             self.update_active_card()
-            self.move_to_view()
         except Exception as err_obj:
-            self.dump_err(err_obj, False)
+            self.dump_err(err_obj, True)
 
     def refresh_songs(self) -> None:
         self.playlist_canvas.itemconfigure(self.playlist_window, width=self.playlist_canvas.winfo_width(), height=len(self.playlist) * 71)
@@ -885,11 +882,10 @@ class Sounder:
         else:
             self.playlist = self.songs
             self.add_music_cards()
-            self.refresh_songs()
+        self.refresh_songs()
         self.update_lenght()
         self.update_num_of_songs()
         self.update_active_card()
-        self.move_to_view()
         del word, result
 
     def update_state(self) -> None:
@@ -1412,14 +1408,6 @@ class Sounder:
             self.move_song_label['text'] = 'WHILE PLAYLIST IS NOT ACTIVE MOVE PLAYING SONG TO VIEW'
         del value
 
-    def easter_egg(self) -> None:
-        if isfile(f'{self.settings["icons_folder"]}\\xx.png') and not self.songs:
-            self.mrt: ClassVar = ImageTk.PhotoImage(Image.open(f'{self.settings["icons_folder"]}\\xx.png').resize((220, 220)))
-            self.cover_art.configure(image=self.mrt)
-            self.song_name['text'] = 'To all of the queens who are fighting alone!'
-            self.song_artist['text'] = "Stay strong, keep fighting!"
-            self.album_name['text'] = 'HI :D'
-
     def change_icons(self) -> None:
         self.settings['icons_folder'] = self.icons_folder.get()
 
@@ -1435,6 +1423,8 @@ class Sounder:
         except Exception as err_obj:
             self.dump_err(err_obj, False)
 
+    def song_info(self) -> None:
+        pass
 
 if __name__ == '__main__':
         Sounder()
