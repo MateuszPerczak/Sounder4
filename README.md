@@ -1,4 +1,4 @@
-# Sounder4
+# sounder4
 Python music player 
 
 ## Python version:
@@ -52,3 +52,5 @@ https://icons8.com/
 ![Picture of settings](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app4.jpg)
 ![Picture of song menu](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app5.jpg)
 ![Fluent theme](https://raw.githubusercontent.com/losek1/Sounder4/master/images/app6.jpg)
+
+In a nutshell, sounder4 is a bugged mess :D
