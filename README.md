@@ -1,7 +1,7 @@
 # Sounder4
 Python music player 
 
-New app: (Sounder5)[https://github.com/MateuszPerczak/Sounder5]
+New app: [Sounder5](https://github.com/MateuszPerczak/Sounder5)
 
 ## Python version:
 3.8.2
