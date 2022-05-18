@@ -1,5 +1,7 @@
-# sounder4
+# Sounder4
 Python music player 
+
+<span style='color:#ef5000'>New app:</span>(Sounder5)[https://github.com/MateuszPerczak/Sounder5]
 
 ## Python version:
 3.8.2
